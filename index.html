@@ -137,6 +137,35 @@ body{
     transform:translate(-50%,-50%);
 }
 
+.dual-bars{
+    display:flex;
+    gap:15px;
+}
+
+.bar-block{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+}
+
+/* Barra da categoria */
+.cat-progress{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#ff0066,#ffaa00);
+}
+
+.cat-dot{
+    position:absolute;
+    top:50%;
+    left:0%;
+    width:14px;
+    height:14px;
+    background:#ffcc00;
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+}
+
 </style>
 </head>
 
@@ -167,26 +196,30 @@ body{
         <img id="catBtn" src="icon/categoria.png" onclick="changeCategory()" style="display:none;">
     </div>
 
-<div class="track-bar">
+<div class="track-bar dual-bars">
 
-    <!-- BARRA DA MÚSICA ATUAL -->
-    <div class="track-info">
-        <span id="trackName">Nenhuma música tocando</span>
-        <span id="trackTime">00:00 / 00:00</span>
-    </div>
-    <div class="progress-container">
-        <div class="progress"></div>
-        <div class="dot"></div>
+    <!-- BARRA DA MÚSICA -->
+    <div class="bar-block">
+        <div class="track-info">
+            <span id="trackName">Nenhuma música tocando</span>
+            <span id="trackTime">00:00 / 00:00</span>
+        </div>
+        <div class="progress-container">
+            <div class="progress"></div>
+            <div class="dot"></div>
+        </div>
     </div>
 
-    <!-- BARRA DO TEMPO DA CATEGORIA -->
-    <div class="track-info" style="margin-top:10px;">
-        <span>Categoria: <b id="catName">Eletrônica</b></span>
-        <span id="categoryTimeText">00:00 / 60:00</span>
-    </div>
-    <div class="progress-container">
-        <div class="cat-progress"></div>
-        <div class="cat-dot"></div>
+    <!-- BARRA DA CATEGORIA -->
+    <div class="bar-block">
+        <div class="track-info">
+            <span>Categoria: <b id="catName">Eletrônica</b></span>
+            <span id="categoryTimeText">00:00 / 60:00</span>
+        </div>
+        <div class="progress-container">
+            <div class="cat-progress"></div>
+            <div class="cat-dot"></div>
+        </div>
     </div>
 
 </div>
