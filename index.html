@@ -155,14 +155,15 @@ body{
 </div>
 
 <!-- BARRA INFERIOR -->
-<div class="bar bottom-bar">
-    <div class="controls">
-        <img id="playBtn" src="icon/play.png" onclick="togglePlay()">
-        <img id="muteBtn" src="icon/volume_mute.png" onclick="muteMusic()">
-        <img src="icon/volume_menos.png" onclick="volumeDown()">
-        <img src="icon/volume_mais.png" onclick="volumeUp()">
-        <img id="catBtn" src="icon/categoria.png" onclick="changeCategory()" style="display:none;">
-    </div>
+<div class="controls">
+    <img id="playBtn" src="icon/play.png" onclick="togglePlay()">
+    <img id="prevBtn" src="icon/prev.png" onclick="prevMusic()" style="display:none;">
+    <img id="nextBtn" src="icon/next.png" onclick="nextMusic()" style="display:none;">
+    <img id="muteBtn" src="icon/volume_mute.png" onclick="muteMusic()">
+    <img src="icon/volume_menos.png" onclick="volumeDown()">
+    <img src="icon/volume_mais.png" onclick="volumeUp()">
+    <img id="catBtn" src="icon/categoria.png" onclick="changeCategory()" style="display:none;">
+</div>
 
     <div class="track-bar">
    <div class="track-info">
@@ -264,13 +265,18 @@ function login(){
         userType="admin";
         loginBtn.src="icon/sair.png";
         catBtn.style.display="block";
+        prevBtn.style.display="block";
+        nextBtn.style.display="block";
         loginBox.style.display="none";
     }
 }
+
 function logout(){
     userType="padrao";
     loginBtn.src="icon/login.png";
     catBtn.style.display="none";
+    prevBtn.style.display="none";
+    nextBtn.style.display="none";
 }
 
 /* === PLAY / PAUSE INTELIGENTE === */
