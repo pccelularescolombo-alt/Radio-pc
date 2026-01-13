@@ -440,7 +440,7 @@ function prevMusic(){
 }
 
 let categoryTime = {
-  eletronica: 87,
+  eletronica: 0,
   pop: 0,
   sertanejo: 0,
   anos_80: 0,
@@ -448,13 +448,14 @@ let categoryTime = {
   divulgacao: 0
 };
 
+/* TEMPO DE CATEGORIAN POR SEGUBDOS */
 let categoryLimit = {
-  eletronica: 3600,
-  pop: 1800,
-  sertanejo: 2400,
-  anos_80: 1800,
-  anos_2000: 1800,
-  divulgacao: 600
+  eletronica: 5238,   // 1h 27m 18s
+  pop: 5400,         // 1h30 (exemplo)
+  sertanejo: 10800,  // 3h
+  anos_80: 3600,     // 1h
+  anos_2000: 2700,   // 45 min
+  divulgacao: 600    // 10 min de propaganda
 };
 
 setInterval(()=>{
