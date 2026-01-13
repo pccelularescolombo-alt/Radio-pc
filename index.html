@@ -197,8 +197,16 @@ let currentCategory="eletronica";
 let isMuted=false;
 let hasStarted=false;
 
-const playBtn=document.getElementById("playBtn");
-const muteBtn=document.getElementById("muteBtn");
+const loginBtn = document.getElementById("loginBtn");
+const catBtn   = document.getElementById("catBtn");
+const prevBtn  = document.getElementById("prevBtn");
+const nextBtn  = document.getElementById("nextBtn");
+const loginBox = document.getElementById("loginBox");
+const user     = document.getElementById("user");
+const pass     = document.getElementById("pass");
+const player   = document.getElementById("player");
+const trackName= document.getElementById("trackName");
+const trackTime= document.getElementById("trackTime");
 
 /* ELETRÔNICA */
 const musicas = {
@@ -367,6 +375,17 @@ function seek(e){
     const percent = (e.clientX - rect.left) / rect.width;
     player.currentTime = percent * player.duration;
 }
+
+function nextMusic(){
+    hasStarted=false;
+    togglePlay();
+}
+
+function prevMusic(){
+    hasStarted=false;
+    togglePlay();
+}
+
 </script>
 </body>
 </html>
