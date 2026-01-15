@@ -312,7 +312,6 @@ body{
 <script>
 /* ================= VARIÁVEIS ================= */
 let trackTimer = null;
-let categoryTimer = null;
 let categoryTotalSeconds = 3600;
 let categoryElapsed = 0;
 
@@ -387,41 +386,29 @@ function logout(){
 /* ================= PLAY / PAUSE ================= */
 function togglePlay(){
     if(!hasStarted){
-        startCategoryRandom(currentCategory);
         hasStarted = true;
+        startCategoryRandom(currentCategory);
         return;
     }
-
-    if(player.paused){
-        player.play();
-    }else{
-        player.pause();
-    }
+    if(player.paused) player.play();
+    else player.pause();
 }
 
 /* ================= ÍCONE PLAY / PAUSE ================= */
-player.onplay = () => playBtn.src = "icon/pause.png";
+player.onplay = () => playBtn.src = "icon/pausa.png";
 player.onpause = () => playBtn.src = "icon/play.png";
 
 /* ================= VOLUME ================= */
-function volumeUp(){
-    player.volume = Math.min(1, player.volume + 0.1);
-}
-function volumeDown(){
-    player.volume = Math.max(0, player.volume - 0.1);
-}
+function volumeUp(){ player.volume = Math.min(1, player.volume + 0.1); }
+function volumeDown(){ player.volume = Math.max(0, player.volume - 0.1); }
 function muteMusic(){
     player.muted = !player.muted;
     muteBtn.src = player.muted ? "icon/volume_mute.png" : "icon/volume.png";
 }
 
 /* ================= NEXT / PREV ================= */
-function nextMusic(){
-    playNext();
-}
-function prevMusic(){
-    playPrev();
-}
+function nextMusic(){ playNext(); }
+function prevMusic(){ playPrev(); }
 
 /* ================= RÁDIO ================= */
 function playNext(){
@@ -457,12 +444,11 @@ function playMusic(cat, song){
     player.src = `musicas/${cat}/${song}`;
     player.play();
 
+    playBtn.src = "icon/pausa.png";
     trackName.innerText = song.replaceAll("_"," ");
     isPlayingPromo = cat === "divulgacao";
 
-    player.onloadedmetadata = () => {
-        startTrackTimer();
-    }
+    player.onloadedmetadata = () => startTrackTimer();
 }
 
 /* ================= TEMPO ================= */
@@ -471,17 +457,13 @@ function startTrackTimer(){
     trackTimer = setInterval(()=>{
         updateTrackTime();
         updateCategoryTime();
-    }, 500);
+    }, 1000);
 }
 
 function updateTrackTime(){
     if(!player.duration) return;
-
-    const c = player.currentTime;
-    const d = player.duration;
-
+    const c = player.currentTime, d = player.duration;
     document.getElementById("trackTime").innerText = formatTime(c)+" / "+formatTime(d);
-
     const p = (c/d)*100;
     document.querySelector(".progress").style.width = p+"%";
     document.querySelector(".dot").style.left = p+"%";
@@ -489,27 +471,21 @@ function updateTrackTime(){
 
 function updateCategoryTime(){
     if(player.paused || isPlayingPromo) return;
-
     categoryElapsed++;
     const p = (categoryElapsed/categoryTotalSeconds)*100;
-
     document.querySelector(".cat-progress").style.width = p+"%";
     document.querySelector(".cat-dot").style.left = p+"%";
-
     document.getElementById("categoryTimeText").innerText =
         formatHHMMSS(categoryElapsed)+" / "+formatHHMMSS(categoryTotalSeconds);
 }
 
 /* ================= FORMATOS ================= */
 function formatTime(s){
-    const m = Math.floor(s/60);
-    const sec = Math.floor(s%60);
+    const m=Math.floor(s/60),sec=Math.floor(s%60);
     return String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0");
 }
 function formatHHMMSS(s){
-    const h = Math.floor(s/3600);
-    const m = Math.floor((s%3600)/60);
-    const sec = Math.floor(s%60);
+    const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=Math.floor(s%60);
     return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0");
 }
 
@@ -517,16 +493,62 @@ function formatHHMMSS(s){
 function startCategoryRandom(cat){
     currentCategory = cat;
     currentIndex = Math.floor(Math.random()*musicas[cat].length);
-
     categoryElapsed = 0;
     categoryTotalSeconds = musicas[cat].length * 240;
-
-    playMusic(cat, musicas[cat][currentIndex]);
     catName.innerText = cat.toUpperCase();
+    playMusic(cat, musicas[cat][currentIndex]);
 }
 
-player.onended = () => playNext();
+/* ================= MENU ================= */
+function changeCategory(){
+    document.getElementById("categoryPanel").style.display="flex";
+    document.getElementById("categoryView").style.display="block";
+    document.getElementById("musicView").style.display="none";
+}
+function closeCategories(){
+    document.getElementById("categoryPanel").style.display="none";
+}
+function backToCategories(){
+    document.getElementById("musicView").style.display="none";
+    document.getElementById("categoryView").style.display="block";
+}
+function loadCategories(){
+    const list = document.getElementById("categoryList");
+    list.innerHTML="";
+    Object.keys(musicas).forEach(cat=>{
+        if(cat==="divulgacao") return;
+        const btn=document.createElement("button");
+        btn.innerText=cat.toUpperCase();
+        btn.onclick=()=>openCategory(cat);
+        list.appendChild(btn);
+    });
+}
+function openCategory(cat){
+    currentCategory = cat;
+    catName.innerText = cat.toUpperCase();
+    categoryTotalSeconds = musicas[cat].length * 240;
 
+    document.getElementById("categoryView").style.display="none";
+    document.getElementById("musicView").style.display="block";
+
+    const list=document.getElementById("musicList");
+    list.innerHTML="";
+    musicas[cat].forEach((song,index)=>{
+        const btn=document.createElement("button");
+        btn.innerText=song.replaceAll("_"," ").replace(".mp3","");
+        btn.onclick=()=>{
+            currentIndex=index;
+            categoryElapsed=0;
+            playMusic(cat,song);
+            closeCategories();
+        };
+        list.appendChild(btn);
+    });
+}
+
+loadCategories();
+player.onended=()=>playNext();
+    
 </script>
 </body>
 </html>
