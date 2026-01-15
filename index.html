@@ -313,8 +313,9 @@ body{
 /* ================= VARIÁVEIS ================= */
 let trackTimer = null;
 let categoryTimer = null;
-let categoryTotalSeconds = 3600; // 60 min padrão
+let categoryTotalSeconds = 3600;
 let categoryElapsed = 0;
+
 let userType = "padrao";
 let musicCounter = 0;
 let currentCategory = "eletronica";
@@ -322,6 +323,7 @@ let currentIndex = 0;
 let isPlayingPromo = false;
 let hasStarted = false;
 
+/* ================= ELEMENTOS ================= */
 const loginBtn = document.getElementById("loginBtn");
 const catBtn = document.getElementById("catBtn");
 const prevBtn = document.getElementById("prevBtn");
@@ -332,12 +334,6 @@ const pass = document.getElementById("pass");
 const player = document.getElementById("player");
 const trackName = document.getElementById("trackName");
 const catName = document.getElementById("catName");
-const categoryPanel = document.getElementById("categoryPanel");
-const panelTitle = document.getElementById("panelTitle");
-const categoryView = document.getElementById("categoryView");
-const musicView = document.getElementById("musicView");
-const categoryListDiv = document.getElementById("categoryList");
-const musicListDiv = document.getElementById("musicList");
 
 /* ================= MÚSICAS ================= */
 const musicas = {
@@ -356,220 +352,120 @@ const musicas = {
         "The_Black_Eyed_Peas_Meet_Me_Halfway.mp3","Tiesto_The_Business.mp3",
         "Zerb_The_Chainsmokers_Addicted_ft_Ink.mp3"
     ],
-    pop: [],
-    sertanejo: ["Simone_Mendes_Saudade_Proibida.mp3"],
-    anos_80: [],
-    anos_2000: [],
-    divulgacao: ["promo1.mp3","promo2.mp3"]
+    sertanejo:["Simone_Mendes_Saudade_Proibida.mp3"],
+    divulgacao:["promo1.mp3","promo2.mp3"]
 };
 
 /* ================= LOGIN ================= */
-loginBtn.onclick = function(){
-    if(userType === "padrao") loginBox.style.display = "flex";
+loginBtn.onclick = () => {
+    if(userType === "padrao") loginBox.style.display="flex";
     else logout();
 }
 
 function login(){
-    if(user.value === "admin" && pass.value === "1234"){
-        userType = "admin";
-        loginBtn.src = "icon/sair.png";
-        catBtn.style.display = "block";
-        prevBtn.style.display = "block";
-        nextBtn.style.display = "block";
-        loginBox.style.display = "none";
+    if(user.value==="admin" && pass.value==="1234"){
+        userType="admin";
+        loginBtn.src="icon/sair.png";
+        catBtn.style.display="block";
+        prevBtn.style.display="block";
+        nextBtn.style.display="block";
+        loginBox.style.display="none";
     }
 }
-
 function logout(){
-    userType = "padrao";
-    loginBtn.src = "icon/login.png";
-    catBtn.style.display = "none";
-    prevBtn.style.display = "none";
-    nextBtn.style.display = "none";
+    userType="padrao";
+    loginBtn.src="icon/login.png";
+    catBtn.style.display="none";
+    prevBtn.style.display="none";
+    nextBtn.style.display="none";
 }
 
 /* ================= PLAYER ================= */
 function togglePlay(){
-    if(!hasStarted){
-        playNext();
-        hasStarted = true;
-        return;
-    }
-    if(player.paused){
-        player.play();
-        playBtn.src = "icon/pausa.png";
-    }else{
-        player.pause();
-        playBtn.src = "icon/play.png";
-    }
+    if(!hasStarted){ playNext(); hasStarted=true; return;}
+    player.paused?player.play():player.pause();
 }
 
-/* ================= LÓGICA DE RÁDIO ================= */
+/* ================= RÁDIO ================= */
 function playNext(){
-    if(isPlayingPromo){
-        isPlayingPromo = false;
-    }else{
-        musicCounter++;
-    }
+    if(!isPlayingPromo) musicCounter++;
+    if(musicCounter>=5){ playPromo(); musicCounter=0; return;}
 
-    if(musicCounter >= 5){
-        playPromo();
-        musicCounter = 0;
-        return;
-    }
+    const list=musicas[currentCategory];
+    if(!list.length) return;
 
-    let list = musicas[currentCategory];
-    if(list.length === 0) return;
-
-    currentIndex++;
-    if(currentIndex >= list.length) currentIndex = 0;
-
-    playMusic(currentCategory, list[currentIndex]);
+    currentIndex=(currentIndex+1)%list.length;
+    playMusic(currentCategory,list[currentIndex]);
 }
-
 function playPrev(){
-    let list = musicas[currentCategory];
-    if(list.length === 0) return;
-
-    currentIndex--;
-    if(currentIndex < 0) currentIndex = list.length - 1;
-
-    playMusic(currentCategory, list[currentIndex]);
+    const list=musicas[currentCategory];
+    currentIndex=(currentIndex-1+list.length)%list.length;
+    playMusic(currentCategory,list[currentIndex]);
 }
-
 function playPromo(){
-    isPlayingPromo = true;
-    const list = musicas.divulgacao;
-    const promo = list[Math.floor(Math.random() * list.length)];
-    playMusic("divulgacao", promo);
+    isPlayingPromo=true;
+    const p=musicas.divulgacao[Math.floor(Math.random()*musicas.divulgacao.length)];
+    playMusic("divulgacao",p);
 }
 
 /* ================= PLAY ================= */
-function playMusic(cat, song){
+function playMusic(cat,song){
     clearInterval(trackTimer);
-
-    player.src = `musicas/${cat}/${song}`;
-    player.load();
+    player.src=`musicas/${cat}/${song}`;
     player.play();
+    trackName.innerText=song.replaceAll("_"," ");
+    isPlayingPromo = cat==="divulgacao";
 
-    trackName.innerText = song.replaceAll("_"," ");
-    playBtn.src = "icon/pausa.png";
-
-    player.onloadedmetadata = () => {
-        updateTrackTime();
+    player.onloadedmetadata=()=>{
         startTrackTimer();
-    };
-}
-
-/* ================= BOTÕES ================= */
-function nextMusic(){ playNext(); }
-function prevMusic(){ playPrev(); }
-
-player.onended = () => {
-    playNext();
-};
-
-/* ================= CATEGORIA MANUAL ================= */
-function selectMusic(cat, music){
-    currentCategory = cat;
-    currentIndex = musicas[cat].indexOf(music);
-    musicCounter = 0;
-    isPlayingPromo = false;
-    playMusic(cat, music);
-    catName.innerText = cat.replace("_"," ").toUpperCase();
-    closeCategories();
-}
-
-/* ================= MENU DE CATEGORIAS ================= */
-
-let selectedCategory = "";
-
-function changeCategory(){
-    if(userType !== "admin") return;
-    categoryPanel.style.display = "flex";
-    showCategories();
-}
-
-function closeCategories(){
-    categoryPanel.style.display = "none";
-}
-
-function showCategories(){
-    panelTitle.innerText = "Selecione uma categoria";
-    categoryView.style.display = "block";
-    musicView.style.display = "none";
-
-    categoryListDiv.innerHTML = "";
-
-    for(let cat in musicas){
-        if(cat === "divulgacao") continue;
-
-        const btn = document.createElement("button");
-        btn.innerText = cat.replace("_"," ").toUpperCase();
-        btn.onclick = () => openCategory(cat);
-        categoryListDiv.appendChild(btn);
     }
 }
 
-function openCategory(cat){
-    selectedCategory = cat;
-    panelTitle.innerText = "Iniciar " + cat.replace("_"," ").toUpperCase();
-
-    categoryView.style.display = "none";
-    musicView.style.display = "block";
-
-    musicListDiv.innerHTML = "";
-
-    const startBtn = document.createElement("button");
-    startBtn.innerText = "▶ Iniciar " + cat.replace("_"," ").toUpperCase() + " (Aleatório)";
-    startBtn.onclick = () => startCategoryRandom(cat);
-    musicListDiv.appendChild(startBtn);
-
-    const info = document.createElement("div");
-    info.style.fontSize = "13px";
-    info.style.opacity = "0.7";
-    info.style.textAlign = "center";
-    info.style.marginTop = "10px";
-    info.innerText = "As músicas tocarão em ordem aleatória.";
-    musicListDiv.appendChild(info);
-}
-
-function backToCategories(){
-    showCategories();
-}
-
-function startCategoryRandom(cat){
-    currentCategory = cat;
-    currentIndex = Math.floor(Math.random() * musicas[cat].length);
-    musicCounter = 0;
-    isPlayingPromo = false;
-
-    playMusic(cat, musicas[cat][currentIndex]);
-    catName.innerText = cat.replace("_"," ").toUpperCase();
-    closeCategories();
-}
-
+/* ================= TEMPO ================= */
 function startTrackTimer(){
-    trackTimer = setInterval(()=>{
+    trackTimer=setInterval(()=>{
         updateTrackTime();
         updateCategoryTime();
     },500);
 }
-
 function updateTrackTime(){
     if(!player.duration) return;
-
-    const cur = Math.floor(player.currentTime);
-    const dur = Math.floor(player.duration);
-
-    document.getElementById("trackTime").innerText =
-        formatTime(cur) + " / " + formatTime(dur);
-
-    const percent = (cur / dur) * 100;
-    document.querySelector(".progress").style.width = percent + "%";
-    document.querySelector(".dot").style.left = percent + "%";
+    const c=player.currentTime,d=player.duration;
+    document.getElementById("trackTime").innerText=formatTime(c)+" / "+formatTime(d);
+    const p=(c/d)*100;
+    document.querySelector(".progress").style.width=p+"%";
+    document.querySelector(".dot").style.left=p+"%";
+}
+function updateCategoryTime(){
+    if(player.paused || isPlayingPromo) return;
+    categoryElapsed++;
+    const p=(categoryElapsed/categoryTotalSeconds)*100;
+    document.querySelector(".cat-progress").style.width=p+"%";
+    document.querySelector(".cat-dot").style.left=p+"%";
+    document.getElementById("categoryTimeText").innerText=formatHHMMSS(categoryElapsed)+" / "+formatHHMMSS(categoryTotalSeconds);
 }
 
+/* ================= FORMATOS ================= */
+function formatTime(s){
+    const m=Math.floor(s/60),sec=Math.floor(s%60);
+    return String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0");
+}
+function formatHHMMSS(s){
+    const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=Math.floor(s%60);
+    return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0");
+}
+
+/* ================= CATEGORIA ================= */
+function startCategoryRandom(cat){
+    currentCategory=cat;
+    currentIndex=Math.floor(Math.random()*musicas[cat].length);
+    categoryElapsed=0;
+    categoryTotalSeconds=musicas[cat].length*240;
+    playMusic(cat,musicas[cat][currentIndex]);
+    catName.innerText=cat.toUpperCase();
+}
+player.onended=()=>playNext();
 </script>
+
 </body>
 </html>
