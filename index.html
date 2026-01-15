@@ -222,15 +222,20 @@ body{
 <!-- PAINEL DE CATEGORIAS -->
 <div id="categoryPanel">
 
-<h2>Selecionar categoria</h2>
-<div id="categoryList"></div>
+    <h2 id="panelTitle">Selecione uma categoria</h2>
 
-<hr>
+    <div id="categoryView">
+        <div id="categoryList"></div>
+    </div>
 
-<h3 id="musicTitle">Músicas</h3>
-<div id="musicList"></div>
+    <div id="musicView" style="display:none;">
+        <div id="musicList"></div>
 
-<button onclick="closeCategories()" style="margin-top:15px;">Fechar</button>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <button onclick="backToCategories()">⬅ Voltar</button>
+            <button onclick="closeCategories()">❌ Fechar</button>
+        </div>
+    </div>
 
 </div>
 
@@ -448,99 +453,67 @@ function selectMusic(cat, music){
     closeCategories();
 }
 
-/* ================= CATEGORIAS ================= */
+/* ================= MENU DE CATEGORIAS ================= */
 
-const categoryPanel = document.getElementById("categoryPanel");
-const categoryListDiv = document.getElementById("categoryList");
-const musicListDiv = document.getElementById("musicList");
-const musicTitle = document.getElementById("musicTitle");
+let selectedCategory = "";
 
 function changeCategory(){
     if(userType !== "admin") return;
     categoryPanel.style.display = "flex";
-    loadCategories();
+    showCategories();
 }
 
 function closeCategories(){
     categoryPanel.style.display = "none";
 }
 
-function loadCategories(){
+function showCategories(){
+    panelTitle.innerText = "Selecione uma categoria";
+    categoryView.style.display = "block";
+    musicView.style.display = "none";
+
     categoryListDiv.innerHTML = "";
-    musicListDiv.innerHTML = "";
-    musicTitle.innerText = "Categorias";
 
     for(let cat in musicas){
         if(cat === "divulgacao") continue;
 
         const btn = document.createElement("button");
         btn.innerText = cat.replace("_"," ").toUpperCase();
-        btn.onclick = () => loadMusics(cat);
+        btn.onclick = () => openCategory(cat);
         categoryListDiv.appendChild(btn);
     }
 }
 
-function loadMusics(cat){
+function openCategory(cat){
+    selectedCategory = cat;
+    panelTitle.innerText = "Músicas - " + cat.replace("_"," ").toUpperCase();
+
+    categoryView.style.display = "none";
+    musicView.style.display = "block";
+
     musicListDiv.innerHTML = "";
-    musicTitle.innerText = "Músicas - " + cat.replace("_"," ").toUpperCase();
 
     musicas[cat].forEach(music=>{
         const btn = document.createElement("button");
         btn.innerText = music.replaceAll("_"," ");
-        btn.onclick = () => selectMusic(cat, music);
+        btn.onclick = () => startCategoryRandom(cat);
         musicListDiv.appendChild(btn);
     });
 }
 
-#categoryPanel{
-    position:fixed;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    background:#222;
-    padding:20px;
-    border-radius:10px;
-    display:none;
-    flex-direction:column;
-    gap:10px;
-    width:90%;
-    max-width:450px;
-    max-height:80vh;
-    overflow:auto;
-    z-index:999;
-    box-shadow:0 0 30px #000;
+function backToCategories(){
+    showCategories();
 }
 
-/* Títulos */
-#categoryPanel h2,
-#categoryPanel h3{
-    text-align:center;
-    margin:5px 0;
-}
+function startCategoryRandom(cat){
+    currentCategory = cat;
+    currentIndex = Math.floor(Math.random() * musicas[cat].length);
+    musicCounter = 0;
+    isPlayingPromo = false;
 
-/* Listas */
-#categoryList,
-#musicList{
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-}
-
-/* Botões */
-#categoryPanel button{
-    padding:10px;
-    background:#ff7a00;
-    border:none;
-    border-radius:6px;
-    color:white;
-    cursor:pointer;
-    font-size:14px;
-    transition:0.2s;
-}
-
-#categoryPanel button:hover{
-    background:#ffa94d;
-    transform:scale(1.03);
+    playMusic(cat, musicas[cat][currentIndex]);
+    catName.innerText = cat.replace("_"," ").toUpperCase();
+    closeCategories();
 }
 
 </script>
