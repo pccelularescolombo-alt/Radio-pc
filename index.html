@@ -166,6 +166,55 @@ body{
     transform:translate(-50%,-50%);
 }
 
+.controls img:hover{
+    opacity:1;
+    filter:drop-shadow(0 0 6px #00c3ff);
+    transform:scale(1.08);
+}
+
+.controls img:active{
+    transform:scale(0.95);
+    filter:drop-shadow(0 0 10px #ff7a00);
+}
+
+#categoryPanel{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    background:#222;
+    padding:20px;
+    border-radius:10px;
+    display:none;
+    flex-direction:column;
+    gap:10px;
+    width:90%;
+    max-width:420px;
+    max-height:80vh;
+    overflow:auto;
+    z-index:999;
+}
+
+#categoryPanel h2,
+#categoryPanel h3{
+    text-align:center;
+    margin:5px 0;
+}
+
+#categoryPanel button{
+    padding:8px;
+    background:#ff7a00;
+    border:none;
+    border-radius:5px;
+    color:white;
+    cursor:pointer;
+    margin:4px 0;
+}
+
+#categoryPanel button:hover{
+    background:#ffa94d;
+}
+
 </style>
 </head>
 <body>
@@ -260,252 +309,202 @@ overflow:auto;
 <audio id="player"></audio>
 
 <script>
-let userType="padrao";
-let musicCounter=0;
-let currentCategory="eletronica";
-
-let isMuted=false;
-let hasStarted=false;
+/* ================= VARIÁVEIS ================= */
+let userType = "padrao";
+let musicCounter = 0;
+let currentCategory = "eletronica";
+let currentIndex = 0;
+let isPlayingPromo = false;
+let hasStarted = false;
 
 const loginBtn = document.getElementById("loginBtn");
-const catBtn   = document.getElementById("catBtn");
-const prevBtn  = document.getElementById("prevBtn");
-const nextBtn  = document.getElementById("nextBtn");
+const catBtn = document.getElementById("catBtn");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
 const loginBox = document.getElementById("loginBox");
-const user     = document.getElementById("user");
-const pass     = document.getElementById("pass");
-const player   = document.getElementById("player");
-const trackName= document.getElementById("trackName");
-const trackTime= document.getElementById("trackTime");
-const catName  = document.getElementById("catName");
-const categoryTimeText = document.getElementById("categoryTimeText");
+const user = document.getElementById("user");
+const pass = document.getElementById("pass");
+const player = document.getElementById("player");
+const trackName = document.getElementById("trackName");
+const catName = document.getElementById("catName");
 
-/* ===== MÚSICAS ===== */
+/* ================= MÚSICAS ================= */
 const musicas = {
     eletronica: [
-        "Amine_Edge_DANCE_Lost.mp3",
-        "Artemas_I_like_the_way_you_kiss_me.mp3",
-        "Azari_III_Hungry_for_the_power.mp3",
-        "Calvin_Harris_Sam_Smith_Promises.mp3",
-        "Calvin_Harris_Thinking_About_You_ft_Ayah_Marar.mp3",
-        "Duke_Dumont_Ocean_Drive.mp3",
-        "Ed_Sheeran_Bad_Habits.mp3",
-        "Empire_of_the_Sun_We_Are_The_People.mp3",
-        "Gorgon_City_Imagination_ft_Katy_Menditta.mp3",
-        "I_Follow_Rivers_Lykke_Li.mp3",
-        "James_Hype_7_Seconds_ft_Shamira_Battles.mp3",
-        "James_Hype_Drums_feat_Kim_Petra.mp3",
-        "James_Hype_Drums_ft_Kim_Petras.mp3",
-        "James_Hype_Miggy_Dela_Rosa_Ferrari.mp3",
-        "Kendrick_Lamar_SZA_All_The_Stars.mp3",
-        "Maverick_Sabre_Slow_Down_Ft_Jorja_Smith_Vintage_Culture.mp3",
-        "MEDUZA_Becky_Hill_Goodboys_Lose_Control.mp3",
-        "MEDUZA_Tell_It_To_My_Heart_ft_Hozier.mp3",
-        "Mr_Probz_Waves.mp3",
-        "Purple_Disco_Machine_Kungs_Substitution_ft_Julian_Perretta.mp3",
-        "Sam_Smith_Unholy_ft_Kim_Petras.mp3",
-        "Tame_Impala_The_Less_I_Know_The_Better.mp3",
-        "The_Black_Eyed_Peas_Meet_Me_Halfway.mp3",
-        "Tiesto_The_Business.mp3",
+        "Amine_Edge_DANCE_Lost.mp3","Artemas_I_like_the_way_you_kiss_me.mp3",
+        "Azari_III_Hungry_for_the_power.mp3","Calvin_Harris_Sam_Smith_Promises.mp3",
+        "Calvin_Harris_Thinking_About_You_ft_Ayah_Marar.mp3","Duke_Dumont_Ocean_Drive.mp3",
+        "Ed_Sheeran_Bad_Habits.mp3","Empire_of_the_Sun_We_Are_The_People.mp3",
+        "Gorgon_City_Imagination_ft_Katy_Menditta.mp3","I_Follow_Rivers_Lykke_Li.mp3",
+        "James_Hype_7_Seconds_ft_Shamira_Battles.mp3","James_Hype_Drums_feat_Kim_Petra.mp3",
+        "James_Hype_Drums_ft_Kim_Petras.mp3","James_Hype_Miggy_Dela_Rosa_Ferrari.mp3",
+        "Kendrick_Lamar_SZA_All_The_Stars.mp3","Maverick_Sabre_Slow_Down_Ft_Jorja_Smith_Vintage_Culture.mp3",
+        "MEDUZA_Becky_Hill_Goodboys_Lose_Control.mp3","MEDUZA_Tell_It_To_My_Heart_ft_Hozier.mp3",
+        "Mr_Probz_Waves.mp3","Purple_Disco_Machine_Kungs_Substitution_ft_Julian_Perretta.mp3",
+        "Sam_Smith_Unholy_ft_Kim_Petras.mp3","Tame_Impala_The_Less_I_Know_The_Better.mp3",
+        "The_Black_Eyed_Peas_Meet_Me_Halfway.mp3","Tiesto_The_Business.mp3",
         "Zerb_The_Chainsmokers_Addicted_ft_Ink.mp3"
     ],
     pop: [],
-    sertanejo: [
-        "Simone_Mendes_Saudade_Proibida.mp3"
-    ],
+    sertanejo: ["Simone_Mendes_Saudade_Proibida.mp3"],
     anos_80: [],
     anos_2000: [],
     divulgacao: ["promo1.mp3","promo2.mp3"]
 };
 
-/* ===== TEMPOS ===== */
-let categoryTime = {};
-let categoryTotalTime = {};
-
 /* ================= LOGIN ================= */
-loginBtn.onclick=function(){
-    if(userType==="padrao") loginBox.style.display="flex";
+loginBtn.onclick = function(){
+    if(userType === "padrao") loginBox.style.display = "flex";
     else logout();
 }
 
 function login(){
-    if(user.value==="admin" && pass.value==="1234"){
-        userType="admin";
-        loginBtn.src="icon/sair.png";
-        catBtn.style.display="block";
-        prevBtn.style.display="block";
-        nextBtn.style.display="block";
-        loginBox.style.display="none";
+    if(user.value === "admin" && pass.value === "1234"){
+        userType = "admin";
+        loginBtn.src = "icon/sair.png";
+        catBtn.style.display = "block";
+        prevBtn.style.display = "block";
+        nextBtn.style.display = "block";
+        loginBox.style.display = "none";
     }
 }
 
 function logout(){
-    userType="padrao";
-    loginBtn.src="icon/login.png";
-    catBtn.style.display="none";
-    prevBtn.style.display="none";
-    nextBtn.style.display="none";
+    userType = "padrao";
+    loginBtn.src = "icon/login.png";
+    catBtn.style.display = "none";
+    prevBtn.style.display = "none";
+    nextBtn.style.display = "none";
 }
 
 /* ================= PLAYER ================= */
 function togglePlay(){
     if(!hasStarted){
-        startNewSong();
-        hasStarted=true;
+        playNext();
+        hasStarted = true;
         return;
     }
-
     if(player.paused){
         player.play();
-        playBtn.src="icon/pausa.png";
-        playBtn.classList.add("active");
+        playBtn.src = "icon/pausa.png";
     }else{
         player.pause();
-        playBtn.src="icon/play.png";
-        playBtn.classList.remove("active");
+        playBtn.src = "icon/play.png";
     }
 }
 
-function startNewSong(){
-    let folder=currentCategory;
-    let list=musicas[folder];
-
-    if(musicCounter===5){
-        folder="divulgacao";
-        list=musicas.divulgacao;
-        musicCounter=0;
+/* ================= LÓGICA DE RÁDIO ================= */
+function playNext(){
+    if(isPlayingPromo){
+        isPlayingPromo = false;
     }else{
         musicCounter++;
     }
 
-    const song=list[Math.floor(Math.random()*list.length)];
-    player.src=`musicas/${folder}/${song}`;
-    trackName.innerText=song.replaceAll("_"," ");
+    if(musicCounter >= 5){
+        playPromo();
+        musicCounter = 0;
+        return;
+    }
+
+    let list = musicas[currentCategory];
+    if(list.length === 0) return;
+
+    currentIndex++;
+    if(currentIndex >= list.length) currentIndex = 0;
+
+    playMusic(currentCategory, list[currentIndex]);
+}
+
+function playPrev(){
+    let list = musicas[currentCategory];
+    if(list.length === 0) return;
+
+    currentIndex--;
+    if(currentIndex < 0) currentIndex = list.length - 1;
+
+    playMusic(currentCategory, list[currentIndex]);
+}
+
+function playPromo(){
+    isPlayingPromo = true;
+    const list = musicas.divulgacao;
+    const promo = list[Math.floor(Math.random() * list.length)];
+    playMusic("divulgacao", promo);
+}
+
+/* ================= PLAY ================= */
+function playMusic(cat, song){
+    player.src = `musicas/${cat}/${song}`;
+    trackName.innerText = song.replaceAll("_"," ");
     player.play();
-
-    playBtn.src="icon/pausa.png";
-    playBtn.classList.add("active");
+    playBtn.src = "icon/pausa.png";
 }
 
-/* Próxima automática */
-player.onended=()=>{
-    hasStarted=false;
-    togglePlay();
-}
+/* ================= BOTÕES ================= */
+function nextMusic(){ playNext(); }
+function prevMusic(){ playPrev(); }
 
-/* ================= VOLUME ================= */
-function muteMusic(){
-    player.muted=!player.muted;
+player.onended = () => {
+    playNext();
+};
+
+/* ================= CATEGORIA MANUAL ================= */
+function selectMusic(cat, music){
+    currentCategory = cat;
+    currentIndex = musicas[cat].indexOf(music);
+    musicCounter = 0;
+    isPlayingPromo = false;
+    playMusic(cat, music);
+    catName.innerText = cat.replace("_"," ").toUpperCase();
+    closeCategories();
 }
-function volumeUp(){player.volume=Math.min(1,player.volume+0.1);}
-function volumeDown(){player.volume=Math.max(0,player.volume-0.1);}
 
 /* ================= CATEGORIAS ================= */
-function changeCategory(){
-    if(userType!=="admin") return;
-    document.getElementById("categoryPanel").style.display="flex";
-    loadCategories();
-}
 
+const categoryPanel = document.getElementById("categoryPanel");
 const categoryListDiv = document.getElementById("categoryList");
 const musicListDiv = document.getElementById("musicList");
 const musicTitle = document.getElementById("musicTitle");
 
+function changeCategory(){
+    if(userType !== "admin") return;
+    categoryPanel.style.display = "flex";
+    loadCategories();
+}
+
+function closeCategories(){
+    categoryPanel.style.display = "none";
+}
+
 function loadCategories(){
-    categoryListDiv.innerHTML="";
-    musicListDiv.innerHTML="";
-    musicTitle.innerText="Categorias";
+    categoryListDiv.innerHTML = "";
+    musicListDiv.innerHTML = "";
+    musicTitle.innerText = "Categorias";
 
     for(let cat in musicas){
-        if(cat==="divulgacao") continue;
-        const btn=document.createElement("button");
-        btn.innerText=cat.replace("_"," ").toUpperCase();
-        btn.onclick=()=>loadMusics(cat);
+        if(cat === "divulgacao") continue;
+
+        const btn = document.createElement("button");
+        btn.innerText = cat.replace("_"," ").toUpperCase();
+        btn.onclick = () => loadMusics(cat);
         categoryListDiv.appendChild(btn);
     }
 }
 
 function loadMusics(cat){
-    musicListDiv.innerHTML="";
-    musicTitle.innerText="Músicas - "+cat.toUpperCase();
+    musicListDiv.innerHTML = "";
+    musicTitle.innerText = "Músicas - " + cat.replace("_"," ").toUpperCase();
 
     musicas[cat].forEach(music=>{
-        const btn=document.createElement("button");
-        btn.innerText=music.replaceAll("_"," ");
-        btn.onclick=()=>selectMusic(cat,music);
+        const btn = document.createElement("button");
+        btn.innerText = music.replaceAll("_"," ");
+        btn.onclick = () => selectMusic(cat, music);
         musicListDiv.appendChild(btn);
     });
 }
 
-function selectMusic(cat,music){
-    currentCategory=cat;
-    categoryTime[cat]=0;
-
-    player.src=`musicas/${cat}/${music}`;
-    trackName.innerText=music.replaceAll("_"," ");
-    player.play();
-
-    playBtn.src="icon/pausa.png";
-    playBtn.classList.add("active");
-
-    catName.innerText=cat.replace("_"," ").toUpperCase();
-    closeCategories();
-}
-
-function closeCategories(){
-    document.getElementById("categoryPanel").style.display="none";
-}
-
-/* ================= PROGRESSO ================= */
-player.addEventListener("timeupdate",()=>{
-    const musicPercent=(player.currentTime/player.duration)*100||0;
-    document.querySelector(".progress").style.width=musicPercent+"%";
-    document.querySelector(".dot").style.left=musicPercent+"%";
-
-    const catPercent=(categoryTime[currentCategory]/categoryTotalTime[currentCategory])*100||0;
-    document.querySelector(".cat-progress").style.width=Math.min(catPercent,100)+"%";
-    document.querySelector(".cat-dot").style.left=Math.min(catPercent,100)+"%";
-
-    trackTime.innerText=formatTime(player.currentTime)+" / "+formatTime(player.duration);
-    categoryTimeText.innerText=formatTime(categoryTime[currentCategory])+" / "+formatTime(categoryTotalTime[currentCategory]);
-});
-
-/* ================= TEMPO ================= */
-function formatTime(sec){
-    if(!sec) return "00:00:00";
-    const h=Math.floor(sec/3600);
-    const m=Math.floor((sec%3600)/60);
-    const s=Math.floor(sec%60);
-    return h.toString().padStart(2,"0")+":"+m.toString().padStart(2,"0")+":"+s.toString().padStart(2,"0");
-}
-
-/* ================= CALCULAR TEMPO REAL ================= */
-function calculateCategoryTime(cat){
-    categoryTotalTime[cat]=0;
-    categoryTime[cat]=0;
-    let loaded=0;
-
-    musicas[cat].forEach(song=>{
-        const a=new Audio();
-        a.src=`musicas/${cat}/${song}`;
-        a.addEventListener("loadedmetadata",()=>{
-            categoryTotalTime[cat]+=a.duration;
-            loaded++;
-        });
-    });
-}
-
-Object.keys(musicas).forEach(cat=>{
-    calculateCategoryTime(cat);
-});
-
-/* Contador da categoria */
-setInterval(()=>{
-    if(!player.paused){
-        categoryTime[currentCategory]++;
-    }
-},1000);
-
 </script>
+
 </body>
 </html>
