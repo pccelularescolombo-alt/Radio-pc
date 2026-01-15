@@ -311,6 +311,10 @@ body{
 
 <script>
 /* ================= VARIÁVEIS ================= */
+let trackTimer = null;
+let categoryTimer = null;
+let categoryTotalSeconds = 3600; // 60 min padrão
+let categoryElapsed = 0;
 let userType = "padrao";
 let musicCounter = 0;
 let currentCategory = "eletronica";
@@ -442,10 +446,19 @@ function playPromo(){
 
 /* ================= PLAY ================= */
 function playMusic(cat, song){
+    clearInterval(trackTimer);
+
     player.src = `musicas/${cat}/${song}`;
-    trackName.innerText = song.replaceAll("_"," ");
+    player.load();
     player.play();
+
+    trackName.innerText = song.replaceAll("_"," ");
     playBtn.src = "icon/pausa.png";
+
+    player.onloadedmetadata = () => {
+        updateTrackTime();
+        startTrackTimer();
+    };
 }
 
 /* ================= BOTÕES ================= */
@@ -534,6 +547,27 @@ function startCategoryRandom(cat){
     playMusic(cat, musicas[cat][currentIndex]);
     catName.innerText = cat.replace("_"," ").toUpperCase();
     closeCategories();
+}
+
+function startTrackTimer(){
+    trackTimer = setInterval(()=>{
+        updateTrackTime();
+        updateCategoryTime();
+    },500);
+}
+
+function updateTrackTime(){
+    if(!player.duration) return;
+
+    const cur = Math.floor(player.currentTime);
+    const dur = Math.floor(player.duration);
+
+    document.getElementById("trackTime").innerText =
+        formatTime(cur) + " / " + formatTime(dur);
+
+    const percent = (cur / dur) * 100;
+    document.querySelector(".progress").style.width = percent + "%";
+    document.querySelector(".dot").style.left = percent + "%";
 }
 
 </script>
