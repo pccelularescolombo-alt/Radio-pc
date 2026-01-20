@@ -317,17 +317,6 @@ body{
     <button onclick="closeCategories()" style="margin-top:10px;">❌ Fechar</button>
 </div>
 
-    <div id="musicView" style="display:none;">
-        <div id="musicList"></div>
-
-        <div style="display:flex; gap:10px; margin-top:10px;">
-            <button onclick="backToCategories()">⬅ Voltar</button>
-            <button onclick="closeCategories()">❌ Fechar</button>
-        </div>
-    </div>
-
-</div>
-
 <!-- BARRA SUPERIOR -->
 <div class="bar top-bar">
     <img src="logo/logo.png" class="logo">
@@ -399,7 +388,7 @@ let categoryElapsed = 0;
 let userType = "padrao";
 let musicCounter = 0;
 let currentCategory = "eletronica";
-let currentIndex = 0;
+let currentIndex = -1;
 let isPlayingPromo = false;
 let hasStarted = false;
 let availableCategories = [];
@@ -499,26 +488,27 @@ const musicas = {
 
 /* ================= LOGIN ================= */
 loginBtn.onclick = () => {
-    if(userType === "padrao") loginBox.style.display="flex";
+    if(userType === "padrao") loginBox.style.display = "flex";
     else logout();
-}
+};
 
 function login(){
-    if(user.value==="admin" && pass.value==="1234"){
-        userType="admin";
-        loginBtn.src="icon/sair.png";
-        catBtn.style.display="block";
-        prevBtn.style.display="block";
-        nextBtn.style.display="block";
-        loginBox.style.display="none";
+    if(user.value === "admin" && pass.value === "1234"){
+        userType = "admin";
+        loginBtn.src = "icon/sair.png";
+        catBtn.style.display = "block";
+        prevBtn.style.display = "block";
+        nextBtn.style.display = "block";
+        loginBox.style.display = "none";
     }
 }
+
 function logout(){
-    userType="padrao";
-    loginBtn.src="icon/login.png";
-    catBtn.style.display="none";
-    prevBtn.style.display="none";
-    nextBtn.style.display="none";
+    userType = "padrao";
+    loginBtn.src = "icon/login.png";
+    catBtn.style.display = "none";
+    prevBtn.style.display = "none";
+    nextBtn.style.display = "none";
 }
 
 /* ================= PLAY / PAUSE ================= */
@@ -528,11 +518,9 @@ function togglePlay(){
         startCategoryRandom();
         return;
     }
-    if(player.paused) player.play();
-    else player.pause();
+    player.paused ? player.play() : player.pause();
 }
 
-/* ================= ÍCONE PLAY / PAUSE ================= */
 player.onplay = () => playBtn.src = "icon/pausa.png";
 player.onpause = () => playBtn.src = "icon/play.png";
 
@@ -544,31 +532,30 @@ function muteMusic(){
     muteBtn.src = player.muted ? "icon/volume_mute.png" : "icon/volume.png";
 }
 
-/* ================= NEXT / PREV ================= */
+/* ================= CONTROLES ================= */
 function nextMusic(){ playNext(); }
 function prevMusic(){ playPrev(); }
 
-/* ================= RÁDIO ================= */
-function playNext(){
-    if(!isPlayingPromo){
-        musicCounter++;
-    }
-
-    if(musicCounter >= 5){
-        musicCounter = 0;
-        playPromo();
-        return;
-    }
-
+/* ================= RÁDIO ALEATÓRIA ================= */
+function playRandomMusic(){
     const list = musicas[currentCategory];
+    if(!list || list.length === 0) return;
 
-    if(currentIndex >= list.length - 1){
-        goToNextRandomCategory();
-        return;
-    }
+    let nextIndex;
+    do{
+        nextIndex = Math.floor(Math.random() * list.length);
+    } while(nextIndex === currentIndex && list.length > 1);
 
-    currentIndex++;
+    currentIndex = nextIndex;
     playMusic(currentCategory, list[currentIndex]);
+}
+
+function playNext(){
+    playRandomMusic();
+}
+
+function playPrev(){
+    player.currentTime = 0;
 }
 
 /* ================= PLAY ================= */
@@ -578,42 +565,32 @@ function playMusic(cat, song){
     player.src = `musicas/${cat}/${song}`;
     player.play();
 
-    playBtn.src = "icon/pausa.png";
     trackName.innerText = song.replaceAll("_"," ");
     isPlayingPromo = cat === "divulgacao";
 
     player.onloadedmetadata = () => startTrackTimer();
 }
 
+/* ================= CATEGORIAS ================= */
 function resetAvailableCategories(){
-    availableCategories = Object.keys(musicas)
-        .filter(cat => cat !== "divulgacao");
+    availableCategories = Object.keys(musicas).filter(c => c !== "divulgacao");
 }
 
 function getRandomCategory(){
-    if(availableCategories.length === 0){
-        resetAvailableCategories();
-    }
-
+    if(availableCategories.length === 0) resetAvailableCategories();
     const i = Math.floor(Math.random() * availableCategories.length);
-    const cat = availableCategories[i];
-    availableCategories.splice(i, 1);
-    return cat;
-}
-
-function goToNextRandomCategory(){
-    currentCategory = getRandomCategory();
-    currentIndex = 0;
-    categoryElapsed = 0;
-    categoryTotalSeconds = musicas[currentCategory].length * 240;
-
-    catName.innerText = currentCategory.toUpperCase();
-    playMusic(currentCategory, musicas[currentCategory][currentIndex]);
+    return availableCategories.splice(i,1)[0];
 }
 
 function startCategoryRandom(){
     resetAvailableCategories();
-    goToNextRandomCategory();
+    currentCategory = getRandomCategory();
+    currentIndex = -1;
+    categoryElapsed = 0;
+    categoryTotalSeconds = musicas[currentCategory].length * 240;
+
+    catName.innerText = currentCategory.toUpperCase();
+    playRandomMusic();
 }
 
 /* ================= TEMPO ================= */
@@ -622,14 +599,14 @@ function startTrackTimer(){
     trackTimer = setInterval(()=>{
         updateTrackTime();
         updateCategoryTime();
-    }, 1000);
+    },1000);
 }
 
 function updateTrackTime(){
     if(!player.duration) return;
-    const c = player.currentTime, d = player.duration;
-    document.getElementById("trackTime").innerText = formatTime(c)+" / "+formatTime(d);
-    const p = (c/d)*100;
+    const p = (player.currentTime / player.duration) * 100;
+    document.getElementById("trackTime").innerText =
+        formatTime(player.currentTime)+" / "+formatTime(player.duration);
     document.querySelector(".progress").style.width = p+"%";
     document.querySelector(".dot").style.left = p+"%";
 }
@@ -637,7 +614,7 @@ function updateTrackTime(){
 function updateCategoryTime(){
     if(player.paused || isPlayingPromo) return;
     categoryElapsed++;
-    const p = (categoryElapsed/categoryTotalSeconds)*100;
+    const p = (categoryElapsed / categoryTotalSeconds) * 100;
     document.querySelector(".cat-progress").style.width = p+"%";
     document.querySelector(".cat-dot").style.left = p+"%";
     document.getElementById("categoryTimeText").innerText =
@@ -650,74 +627,44 @@ function formatTime(s){
     return String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0");
 }
 function formatHHMMSS(s){
-    const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=Math.floor(s%60);
+    const h=Math.floor(s/3600),
+          m=Math.floor((s%3600)/60),
+          sec=Math.floor(s%60);
     return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0");
 }
 
-/* ================= MENU ================= */
+/* ================= MENU CATEGORIA ================= */
 function changeCategory(){
-    document.getElementById("categoryPanel").style.display="flex";
-    document.getElementById("categoryView").style.display="block";
-    document.getElementById("musicView").style.display="none";
+    document.getElementById("categoryPanel").style.display = "flex";
 }
 function closeCategories(){
-    document.getElementById("categoryPanel").style.display="none";
-}
-function backToCategories(){
-    document.getElementById("musicView").style.display="none";
-    document.getElementById("categoryView").style.display="block";
+    document.getElementById("categoryPanel").style.display = "none";
 }
 function loadCategories(){
     const list = document.getElementById("categoryList");
-    list.innerHTML="";
+    list.innerHTML = "";
     Object.keys(musicas).forEach(cat=>{
-        if(cat==="divulgacao") return;
-        const btn=document.createElement("button");
-        btn.innerText=cat.toUpperCase();
-        btn.onclick=()=>openCategory(cat);
+        if(cat === "divulgacao") return;
+        const btn = document.createElement("button");
+        btn.innerText = cat.toUpperCase();
+        btn.onclick = () => openCategory(cat);
         list.appendChild(btn);
     });
 }
 function openCategory(cat){
-    availableCategories = availableCategories.filter(c => c !== cat);
-    
     currentCategory = cat;
-    catName.innerText = cat.toUpperCase();
+    currentIndex = -1;
+    categoryElapsed = 0;
     categoryTotalSeconds = musicas[cat].length * 240;
 
-    document.getElementById("categoryView").style.display="none";
-    document.getElementById("musicView").style.display="block";
-
-    const list=document.getElementById("musicList");
-    list.innerHTML="";
-    musicas[cat].forEach((song,index)=>{
-        const btn=document.createElement("button");
-        btn.innerText=song.replaceAll("_"," ").replace(".mp3","");
-        btn.onclick=()=>{
-            currentIndex=index;
-            categoryElapsed=0;
-            playMusic(cat,song);
-            closeCategories();
-        };
-        list.appendChild(btn);
-    });
-}
-
-function playPrev(){
-    if(isPlayingPromo) return; // não volta divulgação
-
-    if(currentIndex > 0){
-        currentIndex--;
-        playMusic(currentCategory, musicas[currentCategory][currentIndex]);
-    } else {
-        // reinicia a música atual
-        player.currentTime = 0;
-    }
+    catName.innerText = cat.toUpperCase();
+    playRandomMusic();
+    closeCategories();
 }
 
 loadCategories();
-player.onended=()=>playNext();
-    
+player.onended = () => playNext();
+
 </script>
 </body>
 </html>
