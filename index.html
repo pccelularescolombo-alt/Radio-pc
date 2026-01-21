@@ -462,11 +462,6 @@ function toggleMute(){
 
 function volumeUp(){ player.volume = Math.min(1, player.volume + 0.1); }
 function volumeDown(){ player.volume = Math.max(0, player.volume - 0.1); }
-
-function nextMusic(){
-    player.dispatchEvent(new Event("ended"));
-}
-
 function openGenres(){
     alert("Painel de gêneros – próxima etapa");
 }
@@ -686,21 +681,27 @@ function closeGenrePanel(){
 /* ESCOLHA MANUAL */
 player.addEventListener("ended", () => {
 
-    tempoGeneroTocado += player.duration || 0; // ✅ soma real
+    // Soma tempo do gênero apenas para músicas normais
+    if(!tocandoDivulgacao){
+        tempoGeneroTocado += player.duration || 0;
+        contadorMusicas++;
+    }
 
+    // Se acabou de tocar divulgação, volta para música normal
     if(tocandoDivulgacao){
         tocandoDivulgacao = false;
         tocarProxima();
         return;
     }
 
-    contadorMusicas++;
-
-    if(contadorMusicas % 5 === 0){
+    // A cada 5 músicas normais, toca divulgação
+    if(contadorMusicas > 0 && contadorMusicas % 5 === 0){
         tocarDivulgacao();
-    }else{
-        tocarProxima();
+        return;
     }
+
+    // Caso normal
+    tocarProxima();
 });
 
 /* AUTOMÁTICO */
