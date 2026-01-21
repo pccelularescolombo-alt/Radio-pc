@@ -464,7 +464,6 @@ function volumeUp(){ player.volume = Math.min(1, player.volume + 0.1); }
 function volumeDown(){ player.volume = Math.max(0, player.volume - 0.1); }
 function openGenres(){
     alert("Painel de gêneros – próxima etapa");
-}
 
 /* ===============================
 PARTE 12 – LÓGICA DE MÚSICAS
@@ -618,10 +617,6 @@ player.addEventListener("timeupdate", () => {
     document.getElementById("trackTime").innerText =
         formatar(player.currentTime) + " / " + formatar(player.duration);
 
-    document.getElementById("genreProgress").style.width =
-        (atual / total) * 100 + "%";
-    document.getElementById("genreDot").style.left =
-        (atual / total) * 100 + "%";
 });
 
 /* ===== FORMATO TEMPO ===== */
