@@ -184,6 +184,7 @@ body{
     <img src="icon/volume_menos.png" onclick="volumeDown()">
     <img src="icon/volume_mais.png" onclick="volumeUp()">
     <img id="catBtn" src="icon/categoria.png" onclick="changeCategory()" style="display:none;">
+    <img id="nextBtn" src="icon/next_musica.png" onclick="nextMusic()" style="display:none;">
 </div>
 
 <div class="track-bar dual-bars">
@@ -388,11 +389,22 @@ function changeCategory(){document.getElementById("categoryPanel").style.display
 function closeCategories(){document.getElementById("categoryPanel").style.display="none";}
 function openLogin(){document.getElementById("loginBox").style.display="flex";}
 function login(){
-    if(user.value==="admin"&&pass.value==="1234"){
+    if(user.value==="admin" && pass.value==="1234"){
         document.getElementById("catBtn").style.display="block";
+        document.getElementById("nextBtn").style.display="block";
         document.getElementById("loginBox").style.display="none";
     }
 }
+
+function logout(){
+    document.getElementById("catBtn").style.display="none";
+    document.getElementById("nextBtn").style.display="none";
+}
+
+function nextMusic(){
+    player.dispatchEvent(new Event("ended"));
+}
+
 </script>
 
 </body>
