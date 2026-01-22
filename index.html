@@ -778,18 +778,34 @@ function calcularTempoGenero(genero){
     tempoTotalGenero = 0;
 
     const lista = musicas[genero];
-    let carregadas = 0;
+    let processadas = 0;
+
+    if(!lista || lista.length === 0){
+        document.getElementById("genreInfo").innerText = "00:00:00";
+        return;
+    }
 
     lista.forEach(musica=>{
         const audioTemp = new Audio(`musicas/${genero}/${musica}`);
-        audioTemp.addEventListener("loadedmetadata", ()=>{
-            tempoTotalGenero += audioTemp.duration;
-            carregadas++;
 
-            if(carregadas === lista.length){
+        const finalizar = ()=>{
+            processadas++;
+            if(processadas === lista.length){
                 document.getElementById("genreInfo").innerText =
                     formatarHMS(tempoTotalGenero);
             }
+        };
+
+        audioTemp.addEventListener("loadedmetadata", ()=>{
+            if(!isNaN(audioTemp.duration)){
+                tempoTotalGenero += audioTemp.duration;
+            }
+            finalizar();
+        });
+
+        audioTemp.addEventListener("error", ()=>{
+            console.warn("Erro ao carregar:", musica);
+            finalizar();
         });
     });
 }
