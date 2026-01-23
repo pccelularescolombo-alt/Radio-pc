@@ -838,6 +838,16 @@ player.addEventListener("canplay", () => {
     playBtn.src = "icon/pause.png";
 });
 
+/* ===============================
+MOSTRAR NOME DA MÚSICA AO TOCAR
+================================ */
+
+player.addEventListener("playing", () => {
+    if(musicaAtualNome){
+        document.getElementById("trackName").innerText = musicaAtualNome;
+    }
+});
+
 </script>
 </body>
 </html>
