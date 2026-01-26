@@ -235,24 +235,51 @@ PARTE 13 – CSS PAINEL DE GÊNEROS
 .genre-box{
     background:#1c1c1c;
     padding:20px;
-    border-radius:12px;
+    border-radius:10px; /* igual ao login */
     width:90%;
-    max-width:320px;
+    max-width:280px;   /* mesmo padrão do login */
     display:flex;
     flex-direction:column;
     gap:10px;
     text-align:center;
 }
 
+/* Botões iguais ao login */
+#genrePanel button{
+    padding:10px;
+    background:#ff7a00;
+    border:none;
+    color:#fff;
+    border-radius:6px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+#genrePanel button:hover{
+    opacity:.85;
+}
+
+#genreList{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    max-height:220px;
+    overflow-y:auto;
+}
+
+/* Itens da lista */
 #genreList button{
+    background:#2a2a2a;
+    color:#fff;
     padding:10px;
     border:none;
     border-radius:6px;
-    background:#007bff;
-    color:#fff;
     cursor:pointer;
+    text-align:left;
+    transition:.2s;
 }
 
+/* Hover */
 #genreList button:hover{
     background:#ff7a00;
 }
