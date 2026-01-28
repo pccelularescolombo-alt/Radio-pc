@@ -314,16 +314,6 @@ PARTE 14 – ANIMAÇÕES DOS BOTÕES
     transform:scale(0.95);
 }
 
-#visualizer{
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    z-index:-1;
-    background:#080808;
-}
-
 </style>
 </head>
 
@@ -342,8 +332,6 @@ PARTE 13 – PAINEL DE GÊNEROS
 </div>
 
 <body>
-
-<canvas id="visualizer"></canvas>
 
 <!-- =====================================================
 HTML
@@ -516,7 +504,7 @@ function nextMusic(){
 }
 
 /* ===============================
-LÓGICA DE MÚSICAS
+PARTE 12 – LÓGICA DE MÚSICAS
 ================================ */
 
 /* ===== ESTRUTURA DAS MÚSICAS ===== */
@@ -898,79 +886,6 @@ player.addEventListener("playing", () => {
         document.getElementById("trackName").innerText = musicaAtualNome;
     }
 });
-
-/* ===============================
-VISUALIZADOR DE BATIDAS
-================================ */
-
-const canvas = document.getElementById("visualizer");
-const ctx = canvas.getContext("2d");
-
-let audioCtx;
-let analyser;
-let source;
-let dataArray;
-
-function resizeCanvas(){
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
-resizeCanvas();
-window.addEventListener("resize", resizeCanvas);
-
-/* Criar contexto quando dar play */
-function iniciarVisualizador(){
-    if(audioCtx) return;
-
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 256;
-
-    source = audioCtx.createMediaElementSource(player);
-    source.connect(analyser);
-    analyser.connect(audioCtx.destination);
-
-    dataArray = new Uint8Array(analyser.frequencyBinCount);
-    animar();
-}
-
-/* Loop de animação */
-function animar(){
-    requestAnimationFrame(animar);
-
-    analyser.getByteFrequencyData(dataArray);
-
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-
-    const barWidth = (canvas.width / dataArray.length) * 2;
-    let x = 0;
-
-    for(let i=0;i<dataArray.length;i++){
-        const value = dataArray[i];
-        const barHeight = value * 1.2;
-
-        const r = 0;
-        const g = 195;
-        const b = 255;
-
-        ctx.fillStyle = `rgba(${r},${g},${b},0.7)`;
-        ctx.fillRect(
-            x,
-            canvas.height - barHeight,
-            barWidth,
-            barHeight
-        );
-
-        x += barWidth + 1;
-    }
-}
-
-/* Inicia junto com play */
-const originalPlay = togglePlay;
-togglePlay = function(){
-    originalPlay();
-    iniciarVisualizador();
-};
 
 </script>
 </body>
