@@ -624,10 +624,9 @@ function escolherGeneroAutomatico(){
     document.getElementById("genreInfo").innerText = "00:00:00 / 00:00:00";
     document.getElementById("genreName").innerText = generoAtual;
 
-    calcularTempoGenero(generoAtual); // ✅ AQUI
+    calcularTempoGenero(generoAtual); 
 }
 
-/* ===== TOCAR PRÓXIMA ===== */
 function tocarProxima(){
 
     if(musicasTocadas.length === musicas[generoAtual].length){
@@ -837,7 +836,6 @@ logout = function(){
 
 function calcularTempoGenero(genero){
     tempoTotalGenero = 0;
-    tempoGeneroTocado = 0;
 
     const lista = musicas[genero];
     let processadas = 0;
