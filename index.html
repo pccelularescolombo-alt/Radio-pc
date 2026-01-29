@@ -188,7 +188,6 @@ LOGIN BOX
     border-radius:6px;
     cursor:pointer;
 }
-
 /* ===============================
 RESPONSIVO
 ================================ */
@@ -255,7 +254,6 @@ PARTE 13 – CSS PAINEL DE GÊNEROS
     overflow-y:auto;
 }
 
-/* Itens da lista */
 #genreList button{
     background:#2a2a2a;
     color:#fff;
@@ -267,15 +265,12 @@ PARTE 13 – CSS PAINEL DE GÊNEROS
     transition:.2s;
 }
 
-/* Hover */
 #genreList button:hover{
     background:#ff7a00;
 }
-
 /* ===============================
-PARTE 14 – ANIMAÇÕES DOS BOTÕES
+ANIMAÇÕES DOS BOTÕES
 ================================ */
-
 .controls img{
     transition:
         transform .2s ease,
@@ -283,30 +278,26 @@ PARTE 14 – ANIMAÇÕES DOS BOTÕES
         opacity .2s ease;
 }
 
-/* Hover */
 .controls img:hover{
     transform:scale(1.15);
     filter:drop-shadow(0 0 8px rgba(0,195,255,.8));
     opacity:1;
 }
 
-/* Ativo */
 .controls img.active{
     filter:drop-shadow(0 0 10px rgba(255,122,0,.9));
     transform:scale(1.15);
     opacity:1;
 }
 
-/* Clique */
 .controls img:active{
     transform:scale(0.95);
 }
 
 </style>
 </head>
-
 <!-- ===============================
-PARTE 13 – PAINEL DE GÊNEROS
+PAINEL DE GÊNEROS
 ================================ -->
 <div id="genrePanel" style="display:none">
     <div class="genre-box">
@@ -325,23 +316,19 @@ PARTE 13 – PAINEL DE GÊNEROS
 HTML
 ===================================================== -->
 
-<!-- BARRA SUPERIOR -->
 <div class="top-bar">
     <img src="imagens/logo.png" alt="Logo">
     <img id="loginIcon" src="icon/login.png" onclick="toggleLogin()">
 </div>
 
-<!-- CONTEÚDO CENTRAL -->
 <div class="center">
     <h1>Rádio Online</h1>
     <p>Pinheirinho Celulares</p>
 </div>
 
-<!-- BARRA INFERIOR -->
 <div class="bottom-bar">
     <div class="player-wrapper">
 
-        <!-- BOTÕES -->
         <div class="controls">
             <img id="playBtn" src="icon/play.png" onclick="togglePlay()">
             <img id="nextBtn" src="icon/proximo.png" onclick="nextMusic()" style="display:none;">
@@ -351,7 +338,6 @@ HTML
             <img id="genreBtn" src="icon/genero.png" onclick="openGenres()" style="display:none;">
         </div>
 
-        <!-- BARRA DA MÚSICA -->
         <div class="track-bar">
             <div class="track-info">
                 <span id="trackName">Nenhuma música</span>
@@ -363,7 +349,6 @@ HTML
             </div>
         </div>
 
-        <!-- BARRA DO GÊNERO -->
         <div class="track-bar">
             <div class="track-info">
                 <span>Gênero: <b id="genreName">---</b></span>
@@ -374,11 +359,20 @@ HTML
                 <div class="dot" id="genreDot"></div>
             </div>
         </div>
-
+        
+        <div class="track-bar">
+            <div class="track-info">
+                <span>Total Geral</span>
+                <span id="globalInfo">00:00:00 / 00:00:00</span>
+            </div>
+            <div class="progress-container">
+                <div class="progress" id="globalProgress"></div>
+                <div class="dot" id="globalDot"></div>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- LOGIN -->
 <div id="loginBox">
     <input id="user" placeholder="Usuário">
     <input id="pass" type="password" placeholder="Senha">
@@ -491,10 +485,9 @@ function nextMusic(){
 }
 
 /* ===============================
-PARTE 12 – LÓGICA DE MÚSICAS
+LÓGICA DE MÚSICAS
 ================================ */
 
-/* ===== ESTRUTURA DAS MÚSICAS ===== */
 const musicas = {
     "Eletronica": [
         "Amine_Edge_DANCE_Lost.mp3",
@@ -597,22 +590,22 @@ const musicas = {
     ]
 };
 
-/* ===== CONTROLE ===== */
 let generoAtual = "";
 let musicasTocadas = [];
 let contadorMusicas = 0;
 let tocandoDivulgacao = false;
 let musicaAtualNome = "";
+let tempoTotalGeral = 0;
+let tempoGeralTocado = 0;
 
-/* ===== INICIAR PLAY ===== */
 const playBtn = document.getElementById("playBtn");
 
 function iniciarRadio(){
     escolherGeneroAutomatico();
+    calcularTempoGeral(); 
     tocarProxima();
 }
 
-/* ===== GÊNERO AUTOMÁTICO ===== */
 function escolherGeneroAutomatico(){
     const generos = Object.keys(musicas).filter(g => g !== "Divulgacao");
     generoAtual = generos[Math.floor(Math.random() * generos.length)];
@@ -623,15 +616,26 @@ function escolherGeneroAutomatico(){
     document.getElementById("genreDot").style.left = "0%";
     document.getElementById("genreInfo").innerText = "00:00:00 / 00:00:00";
     document.getElementById("genreName").innerText = generoAtual;
+    calcularTempoGenero(generoAtual);
+}
 
-    calcularTempoGenero(generoAtual); 
+function escolherGeneroManual(genero){
+    closeGenrePanel();
+    generoAtual = genero;
+    musicasTocadas = [];
+    contadorMusicas = 0;
+    tempoGeneroTocado = 0;
+    document.getElementById("genreProgress").style.width = "0%";
+    document.getElementById("genreDot").style.left = "0%";
+    document.getElementById("genreInfo").innerText = "00:00:00 / 00:00:00";
+    document.getElementById("genreName").innerText = generoAtual;
+    calcularTempoGenero(generoAtual);
 }
 
 function tocarProxima(){
 
     if(musicasTocadas.length === musicas[generoAtual].length){
-    escolherGeneroAutomatico();
-    return;
+        escolherGeneroAutomatico();
     }
 
     let musica;
@@ -657,23 +661,16 @@ function tocarMusica(genero, arquivo){
     playBtn.src = "icon/pause.png";
 }
 
-/* ===== BARRAS ===== */
 player.addEventListener("timeupdate", () => {
-
     if(!player.duration) return;
-
-    /* MÚSICA */
-    const pct = (player.currentTime / player.duration) * 100;
-
+    const pct = ((player.currentTime || 0) / player.duration) * 100;
     document.getElementById("musicProgress").style.width = pct + "%";
     document.getElementById("musicDot").style.left = pct + "%";
-
     document.getElementById("trackTime").innerText =
         formatar(player.currentTime) + " / " + formatar(player.duration);
 
-/* GÊNERO */
 if(tempoTotalGenero > 0){
-    const totalTocado = tempoGeneroTocado + player.currentTime;
+    const totalTocado = tempoGeneroTocado + (player.currentTime || 0);
     const pctGenero = (totalTocado / tempoTotalGenero) * 100;
 
     document.getElementById("genreProgress").style.width =
@@ -686,9 +683,22 @@ if(tempoTotalGenero > 0){
         formatarHMS(totalTocado) + " / " + formatarHMS(tempoTotalGenero);
 }
 
+if(tempoTotalGeral > 0){
+    const totalGeral = tempoGeralTocado + (player.currentTime || 0);
+    const pctGeral = (totalGeral / tempoTotalGeral) * 100;
+
+    document.getElementById("globalProgress").style.width =
+        Math.min(pctGeral,100) + "%";
+
+    document.getElementById("globalDot").style.left =
+        Math.min(pctGeral,100) + "%";
+
+    document.getElementById("globalInfo").innerText =
+        formatarHMS(totalGeral) + " / " + formatarHMS(tempoTotalGeral);
+}
+
 });
-    
-/* ===== DIVULGAÇÃO ===== */
+ 
 function tocarDivulgacao(){
     const lista = musicas["Divulgacao"];
     if(!lista || lista.length === 0){
@@ -701,7 +711,6 @@ function tocarDivulgacao(){
     tocarMusica("Divulgacao", promo);
 }
 
-/* ===== FORMATO TEMPO ===== */
 function formatar(t){
     const m = Math.floor(t / 60).toString().padStart(2,"0");
     const s = Math.floor(t % 60).toString().padStart(2,"0");
@@ -722,7 +731,6 @@ JS PAINEL DE GÊNEROS
 const genrePanel = document.getElementById("genrePanel");
 const genreList = document.getElementById("genreList");
 
-/* ABRIR PAINEL */
 function openGenres(){
     if(!isAdmin) return;
 
@@ -740,56 +748,54 @@ function openGenres(){
     genrePanel.style.display = "flex";
 }
 
-/* FECHAR */
 function closeGenrePanel(){
     genrePanel.style.display = "none";
 }
 
 function escolherGeneroManual(genero){
     closeGenrePanel();
-
     generoAtual = genero;
     musicasTocadas = [];
     contadorMusicas = 0;
     tempoGeneroTocado = 0;
+    tempoGeralTocado = 0;
     document.getElementById("genreProgress").style.width = "0%";
     document.getElementById("genreDot").style.left = "0%";
     document.getElementById("genreInfo").innerText = "00:00:00 / 00:00:00";
+    document.getElementById("globalProgress").style.width = "0%";
+    document.getElementById("globalDot").style.left = "0%";
+    document.getElementById("globalInfo").innerText = "00:00:00 / 00:00:00";
     tocandoDivulgacao = false;
-
     document.getElementById("genreName").innerText = generoAtual;
-
     calcularTempoGenero(generoAtual);
     tocarProxima();
 }
 
-/* ESCOLHA MANUAL */
 player.addEventListener("ended", () => {
 
-    // Soma tempo do gênero apenas para músicas normais
     if(!tocandoDivulgacao){
-        tempoGeneroTocado += player.duration || 0;
-        contadorMusicas++;
+    const dur = player.duration || 0;
+
+    tempoGeneroTocado += dur;
+    tempoGeralTocado += dur;
+
+    contadorMusicas++
     }
 
-    // Se acabou de tocar divulgação, volta para música normal
     if(tocandoDivulgacao){
         tocandoDivulgacao = false;
         tocarProxima();
         return;
     }
 
-    // A cada 5 músicas normais, toca divulgação
     if(contadorMusicas > 0 && contadorMusicas % 5 === 0){
         tocarDivulgacao();
         return;
     }
 
-    // Caso normal
     tocarProxima();
 });
 
-/* AUTOMÁTICO */
 function autoGenre(){
     closeGenrePanel();
     escolherGeneroAutomatico();
@@ -868,6 +874,41 @@ function calcularTempoGenero(genero){
         audioTemp.addEventListener("error", ()=>{
             console.warn("Erro ao carregar:", musica);
             finalizar();
+        });
+    });
+}
+
+function calcularTempoGeral(){
+    tempoTotalGeral = 0;
+
+    const generos = Object.keys(musicas).filter(g => g !== "Divulgacao");
+    let processadas = 0;
+    let totalMusicas = 0;
+
+    generos.forEach(genero=>{
+        musicas[genero].forEach(musica=>{
+            totalMusicas++;
+
+            const audioTemp = new Audio(`musicas/${genero}/${musica}`);
+
+            const finalizar = ()=>{
+                processadas++;
+                if(processadas === totalMusicas){
+                    document.getElementById("globalInfo").innerText =
+                        "00:00:00 / " + formatarHMS(tempoTotalGeral);
+                }
+            };
+
+            audioTemp.addEventListener("loadedmetadata", ()=>{
+                if(!isNaN(audioTemp.duration)){
+                    tempoTotalGeral += audioTemp.duration;
+                }
+                finalizar();
+            });
+
+            audioTemp.addEventListener("error", ()=>{
+                finalizar();
+            });
         });
     });
 }
