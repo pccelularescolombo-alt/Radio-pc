@@ -296,6 +296,8 @@ ANIMAÇÕES DOS BOTÕES
 
 </style>
 </head>
+<body>
+
 <!-- ===============================
 PAINEL DE GÊNEROS
 ================================ -->
@@ -309,8 +311,6 @@ PAINEL DE GÊNEROS
         <button onclick="closeGenrePanel()">❌ Fechar</button>
     </div>
 </div>
-
-<body>
 
 <!-- =====================================================
 HTML
@@ -455,12 +455,13 @@ function logout(){
 PLAYER
 ================================ */
 function togglePlay(){
-    if(!player.src){
-        iniciarRadio();
-        playBtn.src = "icon/pause.png";
-        playBtn.classList.add("active");
-        return;
+    if(!player.src || player.ended){
+         iniciarRadio();
+         playBtn.src = "icon/pause.png";
+         playBtn.classList.add("active");
+         return;
     }
+
 
     if(player.paused){
         player.play();
@@ -607,26 +608,25 @@ function iniciarRadio(){
 }
 
 function escolherGeneroAutomatico(){
+    player.pause();
+    player.currentTime = 0;
     const generos = Object.keys(musicas).filter(g => g !== "Divulgacao");
     generoAtual = generos[Math.floor(Math.random() * generos.length)];
     musicasTocadas = [];
     contadorMusicas = 0;
     tempoGeneroTocado = 0;
-    tempoGeralTocado = 0;
     document.getElementById("genreProgress").style.width = "0%";
     document.getElementById("genreDot").style.left = "0%";
     document.getElementById("genreInfo").innerText = "00:00:00 / 00:00:00";
     document.getElementById("genreName").innerText = generoAtual;
-    document.getElementById("globalProgress").style.width = "0%";
-    document.getElementById("globalDot").style.left = "0%";
-    document.getElementById("globalInfo").innerText = "00:00:00 / 00:00:00";
     calcularTempoGenero(generoAtual);
 }
 
 function tocarProxima(){
 
     if(musicasTocadas.length === musicas[generoAtual].length){
-        escolherGeneroAutomatico();
+    escolherGeneroAutomatico();
+    return;
     }
 
     let musica;
@@ -744,18 +744,16 @@ function closeGenrePanel(){
 }
 
 function escolherGeneroManual(genero){
+    player.pause();
+    player.currentTime = 0;
     closeGenrePanel();
     generoAtual = genero;
     musicasTocadas = [];
     contadorMusicas = 0;
     tempoGeneroTocado = 0;
-    tempoGeralTocado = 0;
     document.getElementById("genreProgress").style.width = "0%";
     document.getElementById("genreDot").style.left = "0%";
     document.getElementById("genreInfo").innerText = "00:00:00 / 00:00:00";
-    document.getElementById("globalProgress").style.width = "0%";
-    document.getElementById("globalDot").style.left = "0%";
-    document.getElementById("globalInfo").innerText = "00:00:00 / 00:00:00";
     tocandoDivulgacao = false;
     document.getElementById("genreName").innerText = generoAtual;
     calcularTempoGenero(generoAtual);
@@ -789,6 +787,8 @@ player.addEventListener("ended", () => {
 
 function autoGenre(){
     closeGenrePanel();
+    player.pause();
+    player.currentTime = 0;
     escolherGeneroAutomatico();
     tocarProxima();
 }
@@ -925,8 +925,9 @@ player.addEventListener("progress", () => {
 });
 
 player.addEventListener("canplay", () => {
-    // mantém o pause/play correto
-    playBtn.src = "icon/pause.png";
+    if(!player.paused){
+        playBtn.src = "icon/pause.png";
+    }
 });
 
 /* ===============================
