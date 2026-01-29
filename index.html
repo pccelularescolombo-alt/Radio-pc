@@ -665,18 +665,20 @@ player.addEventListener("timeupdate", () => {
     document.getElementById("trackTime").innerText =
         formatar(player.currentTime) + " / " + formatar(player.duration);
 
-    /* GÊNERO */
-    if(tempoTotalGenero > 0){
-        const totalTocado = tempoGeneroTocado + player.currentTime;
-        const pctGenero = (totalTocado / tempoTotalGenero) * 100;
+/* GÊNERO */
+if(tempoTotalGenero > 0){
+    const totalTocado = tempoGeneroTocado + player.currentTime;
+    const pctGenero = (totalTocado / tempoTotalGenero) * 100;
 
-        document.getElementById("genreProgress").style.width =
-            Math.min(pctGenero, 100) + "%";
+    document.getElementById("genreProgress").style.width =
+        Math.min(pctGenero, 100) + "%";
 
-        document.getElementById("genreDot").style.left =
-            Math.min(pctGenero, 100) + "%";
-    }
-});
+    document.getElementById("genreDot").style.left =
+        Math.min(pctGenero, 100) + "%";
+
+    document.getElementById("genreInfo").innerText =
+        formatarHMS(totalTocado) + " / " + formatarHMS(tempoTotalGenero);
+}
 
 /* ===== DIVULGAÇÃO ===== */
 function tocarDivulgacao(){
@@ -706,7 +708,7 @@ function formatarHMS(t){
 }
 
 /* ===============================
-PARTE 13 – JS PAINEL DE GÊNEROS
+JS PAINEL DE GÊNEROS
 ================================ */
 
 const genrePanel = document.getElementById("genrePanel");
@@ -784,7 +786,7 @@ function autoGenre(){
 }
 
 /* ===============================
-PARTE 14 – ESTADOS VISUAIS
+ESTADOS VISUAIS
 ================================ */
 
 /* ELEMENTOS */
