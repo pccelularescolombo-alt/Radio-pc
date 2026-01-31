@@ -521,7 +521,17 @@ function logout(){
 /* ===============================
 PLAYER
 ================================ */
+
+let carregamentoIniciado = false;
+
 function togglePlay(){
+
+    // primeira interação do usuário
+    if(!carregamentoIniciado){
+        carregamentoIniciado = true;
+        calcularTempoGeral();
+    }
+
     if(!player.src){
         iniciarRadio();
         playBtn.src = "icon/pause.png";
@@ -667,7 +677,6 @@ const playBtn = document.getElementById("playBtn");
 
 function iniciarRadio(){
     escolherGeneroAutomatico();
-    calcularTempoGeral(); 
     tocarProxima();
 }
 
