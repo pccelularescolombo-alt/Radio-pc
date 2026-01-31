@@ -369,7 +369,7 @@ HTML
 <!-- ===============================
 LOADING PANEL
 ================================ -->
-<div id="loadingPanel">
+<div id="loadingPanel" style="display:none;">
     <div class="loading-box">
         <h3>Preparando Rádio...</h3>
 
@@ -520,8 +520,6 @@ function logout(){
 /* ===============================
 PLAYER
 ================================ */
-
-let carregamentoIniciado = false;
 
 function togglePlay(){
 
@@ -996,13 +994,17 @@ function calcularTempoGeral(){
                     document.getElementById("status-"+genero).innerText = "✅";
                 }
 
-                // quando tudo termina
-                if(carregados === totalArquivos){
+             if(carregados >= totalArquivos){
+                loadingProgress.style.width = "100%";
+                loadingPercent.innerText = "100%";
+
+                setTimeout(()=>{
                     loadingPanel.style.display = "none";
                     document.getElementById("globalInfo").innerText =
-                        "00:00:00 / " + formatarHMS(tempoTotalGeral);
-                }
-            };
+                    "00:00:00 / " + formatarHMS(tempoTotalGeral);
+                },300);
+            }
+
 
             audio.addEventListener("loadedmetadata", ()=>{
                 if(!isNaN(audio.duration)){
@@ -1056,4 +1058,4 @@ player.addEventListener("playing", () => {
 
 </script>
 </body>
-</html>	
+</html>		
