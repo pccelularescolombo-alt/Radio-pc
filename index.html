@@ -459,16 +459,15 @@ VARIÁVEIS
 const player = document.getElementById("player");
 const loginBox = document.getElementById("loginBox");
 const loginIcon = document.getElementById("loginIcon");
-
 const nextBtn = document.getElementById("nextBtn");
 const genreBtn = document.getElementById("genreBtn");
-
 const user = document.getElementById("user");
 const pass = document.getElementById("pass");
 
 let isAdmin = false;
 let tempoTotalGenero = 0;
 let tempoGeneroTocado = 0;
+let carregamentoIniciado = false;
 
 /* ===============================
 LOGIN / LOGOUT
@@ -526,19 +525,23 @@ let carregamentoIniciado = false;
 
 function togglePlay(){
 
-    // primeira interação do usuário
+    // PRIMEIRO CLIQUE
     if(!carregamentoIniciado){
-        carregamentoIniciado = true;
-        calcularTempoGeral();
-    }
 
-    if(!player.src){
-        iniciarRadio();
+        carregamentoIniciado = true;
+
+        calcularTempoGeral(); // abre painel
+
+        setTimeout(()=>{
+            iniciarRadio();   // começa rádio após loading iniciar
+        },50);
+
         playBtn.src = "icon/pause.png";
         playBtn.classList.add("active");
         return;
     }
 
+    // CONTROLES NORMAIS
     if(player.paused){
         player.play();
         playBtn.src = "icon/pause.png";
@@ -548,17 +551,6 @@ function togglePlay(){
         playBtn.src = "icon/play.png";
         playBtn.classList.remove("active");
     }
-}
-
-function toggleMute(){
-    player.muted = !player.muted;
-}
-
-function volumeUp(){ player.volume = Math.min(1, player.volume + 0.1); }
-function volumeDown(){ player.volume = Math.max(0, player.volume - 0.1); }
-
-function nextMusic(){
-    player.dispatchEvent(new Event("ended"));
 }
 
 /* ===============================
@@ -630,7 +622,7 @@ const musicas = {
         "Grupo_Menos_E_Mais_Jejum_de_Amor.mp3",
         "Grupo_Menos_E_Mais_Nattan_Pela_Ultima_Vez.mp3",
         "Grupo_Menos_E_Mais_Simone_Mendes_P_do_Pecado.mp3",
-        "Grupo_Menos_e_Mais_Tarde_Demais",
+        "Grupo_Menos_e_Mais_Tarde_Demais.mp3",
         "Grupo_Revelacao_Deixa_Acontecer.mp3",
         "Melhor_eu_ir_Ligando_os_Fatos.mp3",
         "Pixote_Inseguranca.mp3",
@@ -1064,4 +1056,4 @@ player.addEventListener("playing", () => {
 
 </script>
 </body>
-</html>
+</html>	
