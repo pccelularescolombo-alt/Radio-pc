@@ -268,6 +268,56 @@ PARTE 13 – CSS PAINEL DE GÊNEROS
 #genreList button:hover{
     background:#ff7a00;
 }
+
+/* ===============================
+LOADING PANEL
+================================ */
+
+#loadingPanel{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.85);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:5000;
+}
+
+.loading-box{
+    background:#1c1c1c;
+    padding:20px;
+    border-radius:10px;
+    width:90%;
+    max-width:300px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    text-align:center;
+}
+
+.loading-item{
+    display:flex;
+    justify-content:space-between;
+    font-size:14px;
+}
+
+.loading-bar{
+    height:8px;
+    background:#333;
+    border-radius:6px;
+    overflow:hidden;
+}
+
+#loadingProgress{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#00c3ff,#ff7a00);
+}
+
+#loadingPercent{
+    font-size:14px;
+}
+
 /* ===============================
 ANIMAÇÕES DOS BOTÕES
 ================================ */
@@ -315,6 +365,23 @@ PAINEL DE GÊNEROS
 <!-- =====================================================
 HTML
 ===================================================== -->
+
+<!-- ===============================
+LOADING PANEL
+================================ -->
+<div id="loadingPanel">
+    <div class="loading-box">
+        <h3>Preparando Rádio...</h3>
+
+        <div id="loadingList"></div>
+
+        <div class="loading-bar">
+            <div id="loadingProgress"></div>
+        </div>
+
+        <div id="loadingPercent">0%</div>
+    </div>
+</div>
 
 <div class="top-bar">
     <img src="imagens/logo.png" alt="Logo">
@@ -877,46 +944,94 @@ function calcularTempoGenero(genero){
 }
 
 function calcularTempoGeral(){
+
+    const loadingPanel = document.getElementById("loadingPanel");
+    const loadingList = document.getElementById("loadingList");
+    const loadingProgress = document.getElementById("loadingProgress");
+    const loadingPercent = document.getElementById("loadingPercent");
+
+    loadingPanel.style.display = "flex";
+    loadingList.innerHTML = "";
+
     tempoTotalGeral = 0;
 
-    const generos = Object.keys(musicas).filter(g => g !== "Divulgacao");
-    let processadas = 0;
-    let totalMusicas = 0;
+    const generos = Object.keys(musicas).filter(g=>g!=="Divulgacao");
+
+    let totalArquivos = 0;
+    let carregados = 0;
+
+    const statusGenero = {};
+
+    generos.forEach(g=>{
+        statusGenero[g] = false;
+
+        const div = document.createElement("div");
+        div.className = "loading-item";
+        div.innerHTML = `<span>${g}</span><span id="status-${g}">⏳</span>`;
+        loadingList.appendChild(div);
+
+        totalArquivos += musicas[g].length;
+    });
 
     generos.forEach(genero=>{
         musicas[genero].forEach(musica=>{
-            totalMusicas++;
 
-            const audioTemp = new Audio(`musicas/${genero}/${musica}`);
+            const audio = new Audio(`musicas/${genero}/${musica}`);
 
             const finalizar = ()=>{
-                processadas++;
-                if(processadas === totalMusicas){
+                carregados++;
+
+                const pct = Math.floor((carregados / totalArquivos) * 100);
+                loadingProgress.style.width = pct + "%";
+                loadingPercent.innerText = pct + "%";
+
+                if(!statusGenero[genero]){
+                    const totalGenero = musicas[genero].length;
+                    const prontos = carregadosGenero(genero);
+
+                    if(prontos === totalGenero){
+                        statusGenero[genero] = true;
+                        document.getElementById("status-"+genero).innerText = "✅";
+                    }
+                }
+
+                if(carregados === totalArquivos){
+                    loadingPanel.style.display = "none";
                     document.getElementById("globalInfo").innerText =
                         "00:00:00 / " + formatarHMS(tempoTotalGeral);
                 }
             };
 
-            audioTemp.addEventListener("loadedmetadata", ()=>{
-                if(!isNaN(audioTemp.duration)){
-                    tempoTotalGeral += audioTemp.duration;
+            audio.addEventListener("loadedmetadata", ()=>{
+                if(!isNaN(audio.duration)){
+                    tempoTotalGeral += audio.duration;
                 }
                 finalizar();
             });
 
-            audioTemp.addEventListener("error", ()=>{
+            audio.addEventListener("error", ()=>{
                 finalizar();
             });
+
         });
     });
+
+    function carregadosGenero(g){
+        let c = 0;
+        musicas[g].forEach(m=>{
+            const a = new Audio(`musicas/${g}/${m}`);
+            if(a.readyState > 0) c++;
+        });
+        return c;
+    }
 }
+
 
 /* ===============================
 BARRA DE CARREGAMENTO (BUFFER)
 ================================ */
 
 player.addEventListener("loadstart", () => {
-    document.getElementById("trackName").innerText = "Carregando...";
     document.getElementById("musicProgress").style.width = "0%";
     document.getElementById("musicDot").style.left = "0%";
 });
