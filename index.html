@@ -268,56 +268,6 @@ PARTE 13 – CSS PAINEL DE GÊNEROS
 #genreList button:hover{
     background:#ff7a00;
 }
-
-/* ===============================
-LOADING PANEL
-================================ */
-
-#loadingPanel{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.85);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:5000;
-}
-
-.loading-box{
-    background:#1c1c1c;
-    padding:20px;
-    border-radius:10px;
-    width:90%;
-    max-width:300px;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    text-align:center;
-}
-
-.loading-item{
-    display:flex;
-    justify-content:space-between;
-    font-size:14px;
-}
-
-.loading-bar{
-    height:8px;
-    background:#333;
-    border-radius:6px;
-    overflow:hidden;
-}
-
-#loadingProgress{
-    height:100%;
-    width:0%;
-    background:linear-gradient(90deg,#00c3ff,#ff7a00);
-}
-
-#loadingPercent{
-    font-size:14px;
-}
-
 /* ===============================
 ANIMAÇÕES DOS BOTÕES
 ================================ */
@@ -365,23 +315,6 @@ PAINEL DE GÊNEROS
 <!-- =====================================================
 HTML
 ===================================================== -->
-
-<!-- ===============================
-LOADING PANEL
-================================ -->
-<div id="loadingPanel" style="display:none;">
-    <div class="loading-box">
-        <h3>Preparando Rádio...</h3>
-
-        <div id="loadingList"></div>
-
-        <div class="loading-bar">
-            <div id="loadingProgress"></div>
-        </div>
-
-        <div id="loadingPercent">0%</div>
-    </div>
-</div>
 
 <div class="top-bar">
     <img src="imagens/logo.png" alt="Logo">
@@ -459,15 +392,16 @@ VARIÁVEIS
 const player = document.getElementById("player");
 const loginBox = document.getElementById("loginBox");
 const loginIcon = document.getElementById("loginIcon");
+
 const nextBtn = document.getElementById("nextBtn");
 const genreBtn = document.getElementById("genreBtn");
+
 const user = document.getElementById("user");
 const pass = document.getElementById("pass");
 
 let isAdmin = false;
 let tempoTotalGenero = 0;
 let tempoGeneroTocado = 0;
-let carregamentoIniciado = false;
 
 /* ===============================
 LOGIN / LOGOUT
@@ -520,26 +454,14 @@ function logout(){
 /* ===============================
 PLAYER
 ================================ */
-
 function togglePlay(){
-
-    // PRIMEIRO CLIQUE
-    if(!carregamentoIniciado){
-
-        carregamentoIniciado = true;
-
-        calcularTempoGeral(); // abre painel
-
-        setTimeout(()=>{
-            iniciarRadio();   // começa rádio após loading iniciar
-        },50);
-
+    if(!player.src){
+        iniciarRadio();
         playBtn.src = "icon/pause.png";
         playBtn.classList.add("active");
         return;
     }
 
-    // CONTROLES NORMAIS
     if(player.paused){
         player.play();
         playBtn.src = "icon/pause.png";
@@ -549,6 +471,17 @@ function togglePlay(){
         playBtn.src = "icon/play.png";
         playBtn.classList.remove("active");
     }
+}
+
+function toggleMute(){
+    player.muted = !player.muted;
+}
+
+function volumeUp(){ player.volume = Math.min(1, player.volume + 0.1); }
+function volumeDown(){ player.volume = Math.max(0, player.volume - 0.1); }
+
+function nextMusic(){
+    player.dispatchEvent(new Event("ended"));
 }
 
 /* ===============================
@@ -667,6 +600,7 @@ const playBtn = document.getElementById("playBtn");
 
 function iniciarRadio(){
     escolherGeneroAutomatico();
+    calcularTempoGeral(); 
     tocarProxima();
 }
 
@@ -943,90 +877,46 @@ function calcularTempoGenero(genero){
 }
 
 function calcularTempoGeral(){
-
-    const loadingPanel = document.getElementById("loadingPanel");
-    const loadingList = document.getElementById("loadingList");
-    const loadingProgress = document.getElementById("loadingProgress");
-    const loadingPercent = document.getElementById("loadingPercent");
-
-    loadingPanel.style.display = "flex";
-    loadingList.innerHTML = "";
-
     tempoTotalGeral = 0;
 
-    const generos = Object.keys(musicas).filter(g=>g!=="Divulgacao");
-
-    let totalArquivos = 0;
-    let carregados = 0;
-
-    // controle por gênero
-    const contagemGenero = {};
-    const totalPorGenero = {};
-
-    generos.forEach(g=>{
-        contagemGenero[g] = 0;
-        totalPorGenero[g] = musicas[g].length;
-
-        const div = document.createElement("div");
-        div.className = "loading-item";
-        div.innerHTML = `<span>${g}</span><span id="status-${g}">⏳</span>`;
-        loadingList.appendChild(div);
-
-        totalArquivos += musicas[g].length;
-    });
+    const generos = Object.keys(musicas).filter(g => g !== "Divulgacao");
+    let processadas = 0;
+    let totalMusicas = 0;
 
     generos.forEach(genero=>{
         musicas[genero].forEach(musica=>{
+            totalMusicas++;
 
-            const audio = new Audio(`musicas/${genero}/${musica}`);
+            const audioTemp = new Audio(`musicas/${genero}/${musica}`);
 
             const finalizar = ()=>{
-
-                carregados++;
-                contagemGenero[genero]++;
-
-                const pct = Math.floor((carregados / totalArquivos) * 100);
-                loadingProgress.style.width = pct + "%";
-                loadingPercent.innerText = pct + "%";
-
-                // quando gênero termina
-                if(contagemGenero[genero] === totalPorGenero[genero]){
-                    document.getElementById("status-"+genero).innerText = "✅";
-                }
-
-             if(carregados >= totalArquivos){
-                loadingProgress.style.width = "100%";
-                loadingPercent.innerText = "100%";
-
-                setTimeout(()=>{
-                    loadingPanel.style.display = "none";
+                processadas++;
+                if(processadas === totalMusicas){
                     document.getElementById("globalInfo").innerText =
-                    "00:00:00 / " + formatarHMS(tempoTotalGeral);
-                },300);
-            }
+                        "00:00:00 / " + formatarHMS(tempoTotalGeral);
+                }
+            };
 
-
-            audio.addEventListener("loadedmetadata", ()=>{
-                if(!isNaN(audio.duration)){
-                    tempoTotalGeral += audio.duration;
+            audioTemp.addEventListener("loadedmetadata", ()=>{
+                if(!isNaN(audioTemp.duration)){
+                    tempoTotalGeral += audioTemp.duration;
                 }
                 finalizar();
             });
 
-            audio.addEventListener("error", ()=>{
+            audioTemp.addEventListener("error", ()=>{
                 finalizar();
             });
-
         });
     });
 }
-
 
 /* ===============================
 BARRA DE CARREGAMENTO (BUFFER)
 ================================ */
 
 player.addEventListener("loadstart", () => {
+    document.getElementById("trackName").innerText = "Carregando...";
     document.getElementById("musicProgress").style.width = "0%";
     document.getElementById("musicDot").style.left = "0%";
 });
@@ -1058,4 +948,4 @@ player.addEventListener("playing", () => {
 
 </script>
 </body>
-</html>		
+</html>
