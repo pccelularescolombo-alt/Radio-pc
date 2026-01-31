@@ -960,10 +960,13 @@ function calcularTempoGeral(){
     let totalArquivos = 0;
     let carregados = 0;
 
-    const statusGenero = {};
+    // controle por gênero
+    const contagemGenero = {};
+    const totalPorGenero = {};
 
     generos.forEach(g=>{
-        statusGenero[g] = false;
+        contagemGenero[g] = 0;
+        totalPorGenero[g] = musicas[g].length;
 
         const div = document.createElement("div");
         div.className = "loading-item";
@@ -979,22 +982,20 @@ function calcularTempoGeral(){
             const audio = new Audio(`musicas/${genero}/${musica}`);
 
             const finalizar = ()=>{
+
                 carregados++;
+                contagemGenero[genero]++;
 
                 const pct = Math.floor((carregados / totalArquivos) * 100);
                 loadingProgress.style.width = pct + "%";
                 loadingPercent.innerText = pct + "%";
 
-                if(!statusGenero[genero]){
-                    const totalGenero = musicas[genero].length;
-                    const prontos = carregadosGenero(genero);
-
-                    if(prontos === totalGenero){
-                        statusGenero[genero] = true;
-                        document.getElementById("status-"+genero).innerText = "✅";
-                    }
+                // quando gênero termina
+                if(contagemGenero[genero] === totalPorGenero[genero]){
+                    document.getElementById("status-"+genero).innerText = "✅";
                 }
 
+                // quando tudo termina
                 if(carregados === totalArquivos){
                     loadingPanel.style.display = "none";
                     document.getElementById("globalInfo").innerText =
@@ -1015,15 +1016,6 @@ function calcularTempoGeral(){
 
         });
     });
-
-    function carregadosGenero(g){
-        let c = 0;
-        musicas[g].forEach(m=>{
-            const a = new Audio(`musicas/${g}/${m}`);
-            if(a.readyState > 0) c++;
-        });
-        return c;
-    }
 }
 
 
