@@ -1,679 +1,419 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rádio Online - Pinheirinho Celulares</title>
-
-<style>
-/* ===============================
-   RESET E BASE - ESTILO SPOTIFY
-================================ */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    background: #121212;
-    color: #fff;
-    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-    min-height: 100vh;
-    padding-top: 64px;
-    padding-bottom: 100px;
-    overflow-x: hidden;
-}
-
-/* ===============================
-   BARRA SUPERIOR - SPOTIFY STYLE
-================================ */
-.top-bar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 64px;
-    background: linear-gradient(90deg, #007bff, #ff7a00);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 24px;
-    z-index: 1000;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-}
-
-.top-bar img {
-    height: 40px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.top-bar img:hover {
-    transform: scale(1.05);
-    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
-}
-
-.top-bar img#loginIcon {
-    width: 36px;
-    height: 36px;
-}
-
-/* ===============================
-   ÁREA CENTRAL - SPOTIFY STYLE
-================================ */
-.center {
-    max-width: 1200px;
-    margin: 0 auto;
-    text-align: center;
-    padding: 40px 20px;
-}
-
-.center h1 {
-    font-size: 3rem;
-    font-weight: 700;
-    letter-spacing: -0.04em;
-    margin-bottom: 8px;
-    background: linear-gradient(90deg, #007bff, #ff7a00);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.center p {
-    font-size: 1.1rem;
-    color: #b3b3b3;
-    font-weight: 400;
-}
-
-/* ===============================
-   VISUALIZADOR DE ÁUDIO
-================================ */
-.visualizer-container {
-    width: 100%;
-    max-width: 1100px;
-    height: 300px;
-    margin: 40px auto;
-    background: rgba(0,0,0,0.4);
-    border-radius: 16px;
-    overflow: hidden;
-    position: relative;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-}
-
-#visualizer {
-    width: 100%;
-    height: 100%;
-    display: block;
-}
-
-.visualizer-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 60%;
-    background: linear-gradient(to top, #121212, transparent);
-    pointer-events: none;
-}
-
-/* ===============================
-   BARRA INFERIOR - SPOTIFY STYLE
-================================ */
-.bottom-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: #181818;
-    border-top: 1px solid #282828;
-    padding: 12px 16px;
-    z-index: 1000;
-}
-
-/* ===============================
-   PLAYER WRAPPER - SPOTIFY LAYOUT
-================================ */
-.player-wrapper {
-    width: 100%;
-    max-width: 1800px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 2fr 1fr;
-    align-items: center;
-    gap: 16px;
-}
-
-/* ===============================
-   CONTROLES - SPOTIFY STYLE
-================================ */
-.controls-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-}
-
-.controls {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.controls img {
-    width: 36px;
-    height: 36px;
-    cursor: pointer;
-    opacity: 0.85;
-    transition: all 0.2s ease;
-}
-
-.controls img:hover {
-    opacity: 1;
-    transform: scale(1.1);
-    filter: drop-shadow(0 0 8px rgba(255, 122, 0, 0.6));
-}
-
-.controls img.main-btn {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, #007bff, #ff7a00);
-    border-radius: 50%;
-    padding: 10px;
-    opacity: 1;
-}
-
-.controls img.main-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 20px rgba(255, 122, 0, 0.5);
-}
-
-.controls img.active {
-    filter: drop-shadow(0 0 10px rgba(255, 122, 0, 0.8));
-    opacity: 1;
-}
-
-/* ===============================
-   VOLUME CONTROLS
-================================ */
-.volume-controls {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.volume-controls img {
-    width: 28px;
-    height: 28px;
-    cursor: pointer;
-    opacity: 0.85;
-    transition: all 0.2s ease;
-}
-
-.volume-controls img:hover {
-    opacity: 1;
-    transform: scale(1.1);
-    filter: drop-shadow(0 0 6px rgba(255, 122, 0, 0.5));
-}
-
-/* ===============================
-   TRACK INFO - SPOTIFY STYLE
-================================ */
-.track-section {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    min-width: 0;
-}
-
-.now-playing {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.track-art {
-    width: 56px;
-    height: 56px;
-    background: linear-gradient(135deg, #007bff, #ff7a00);
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.track-art span {
-    font-size: 24px;
-}
-
-.track-details {
-    flex: 1;
-    min-width: 0;
-}
-
-.track-name {
-    font-size: 14px;
-    font-weight: 500;
-    color: #fff;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-bottom: 2px;
-}
-
-.track-genre {
-    font-size: 12px;
-    color: #b3b3b3;
-}
-
-/* ===============================
-   PROGRESS BARS - SPOTIFY STYLE
-================================ */
-.progress-section {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    width: 100%;
-}
-
-.progress-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.time-label {
-    font-size: 11px;
-    color: #a7a7a7;
-    min-width: 45px;
-    font-variant-numeric: tabular-nums;
-}
-
-.time-label.right {
-    text-align: right;
-}
-
-.progress-container {
-    flex: 1;
-    position: relative;
-    height: 4px;
-    background: #404040;
-    border-radius: 2px;
-    cursor: pointer;
-    transition: height 0.1s ease;
-}
-
-.progress-container:hover {
-    height: 6px;
-}
-
-.progress-container:hover .progress {
-    background: linear-gradient(90deg, #007bff, #ff7a00);
-}
-
-.progress-container:hover .dot {
-    opacity: 1;
-}
-
-.progress {
-    height: 100%;
-    width: 0%;
-    background: #fff;
-    border-radius: 2px;
-    transition: background 0.2s ease;
-}
-
-.dot {
-    position: absolute;
-    top: 50%;
-    left: 0%;
-    width: 12px;
-    height: 12px;
-    background: #fff;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
-
-/* ===============================
-   EXTRA INFO SECTION
-================================ */
-.extra-section {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-end;
-}
-
-.info-bar {
-    background: #282828;
-    border-radius: 8px;
-    padding: 8px 12px;
-    width: 100%;
-    max-width: 280px;
-}
-
-.info-bar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
-}
-
-.info-bar-title {
-    font-size: 11px;
-    color: #b3b3b3;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-}
-
-.info-bar-time {
-    font-size: 11px;
-    color: #a7a7a7;
-    font-variant-numeric: tabular-nums;
-}
-
-.info-bar .progress-container {
-    height: 3px;
-}
-
-/* ===============================
-   LOGIN BOX - SPOTIFY STYLE
-================================ */
-#loginBox {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #282828;
-    padding: 32px;
-    border-radius: 8px;
-    display: none;
-    flex-direction: column;
-    gap: 16px;
-    z-index: 2000;
-    box-shadow: 0 16px 24px rgba(0,0,0,0.3);
-    min-width: 300px;
-}
-
-#loginBox h3 {
-    text-align: center;
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 8px;
-}
-
-#loginBox input {
-    padding: 14px 16px;
-    border: none;
-    border-radius: 4px;
-    background: #3e3e3e;
-    color: #fff;
-    font-size: 14px;
-    outline: none;
-    transition: background 0.2s ease;
-}
-
-#loginBox input:focus {
-    background: #4a4a4a;
-}
-
-#loginBox input::placeholder {
-    color: #a7a7a7;
-}
-
-#loginBox button {
-    padding: 14px;
-    background: linear-gradient(90deg, #007bff, #ff7a00);
-    border: none;
-    color: #fff;
-    border-radius: 500px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    transition: all 0.2s ease;
-}
-
-#loginBox button:hover {
-    transform: scale(1.02);
-    box-shadow: 0 8px 16px rgba(255, 122, 0, 0.3);
-}
-
-/* ===============================
-   PAINEL DE GÊNEROS - SPOTIFY STYLE
-================================ */
-#genrePanel {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 3000;
-    backdrop-filter: blur(4px);
-}
-
-.genre-box {
-    background: #282828;
-    padding: 32px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 400px;
-    box-shadow: 0 16px 24px rgba(0,0,0,0.3);
-}
-
-.genre-box h3 {
-    text-align: center;
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 24px;
-}
-
-#genreList {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    max-height: 300px;
-    overflow-y: auto;
-    margin-bottom: 16px;
-    padding-right: 8px;
-}
-
-#genreList::-webkit-scrollbar {
-    width: 8px;
-}
-
-#genreList::-webkit-scrollbar-track {
-    background: #181818;
-    border-radius: 4px;
-}
-
-#genreList::-webkit-scrollbar-thumb {
-    background: #404040;
-    border-radius: 4px;
-}
-
-#genreList::-webkit-scrollbar-thumb:hover {
-    background: #505050;
-}
-
-#genreList button {
-    background: #3e3e3e;
-    color: #fff;
-    padding: 12px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    text-align: center;
-    transition: all 0.2s ease;
-}
-
-#genreList button:hover {
-    background: linear-gradient(90deg, #007bff, #ff7a00);
-    transform: scale(1.02);
-}
-
-.genre-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-#genrePanel .genre-actions button {
-    padding: 14px;
-    background: #3e3e3e;
-    border: none;
-    color: #fff;
-    border-radius: 500px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-
-#genrePanel .genre-actions button:first-child {
-    background: linear-gradient(90deg, #007bff, #ff7a00);
-}
-
-#genrePanel .genre-actions button:hover {
-    transform: scale(1.02);
-}
-
-/* ===============================
-   OVERLAY ESCURO
-================================ */
-.overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 1999;
-    display: none;
-}
-
-/* ===============================
-   RESPONSIVO
-================================ */
-@media (max-width: 900px) {
-    .player-wrapper {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-
-    .controls-section {
-        order: 1;
-    }
-
-    .track-section {
-        order: 0;
-    }
-
-    .extra-section {
-        order: 2;
-        align-items: stretch;
-    }
-
-    .info-bar {
-        max-width: none;
-    }
-
-    .bottom-bar {
-        padding: 16px;
-    }
-
-    body {
-        padding-bottom: 280px;
-    }
-}
-
-@media (max-width: 480px) {
-    .center h1 {
-        font-size: 2rem;
-    }
-
-    .now-playing {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .track-details {
-        text-align: center;
-    }
-
-    .visualizer-container {
-        height: 180px;
-    }
-
-    body {
-        padding-bottom: 320px;
-    }
-
-    .controls img {
-        width: 32px;
-        height: 32px;
-    }
-
-    .controls img.main-btn {
-        width: 44px;
-        height: 44px;
-    }
-
-    .volume-controls img {
-        width: 26px;
-        height: 26px;
-    }
-}
-
-/* ===============================
-   SCROLLBAR GLOBAL
-================================ */
-::-webkit-scrollbar {
-    width: 12px;
-}
-
-::-webkit-scrollbar-track {
-    background: #121212;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #404040;
-    border-radius: 6px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #505050;
-}
-
-/* ===============================
-   ANIMAÇÃO LOADING
-================================ */
-@keyframes pulse {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
-}
-
-.loading {
-    animation: pulse 1.5s ease-in-out infinite;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio Online - Pinheirinho Celulares</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: #121212;
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            padding-top: 64px;
+            padding-bottom: 140px;
+        }
+
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 64px;
+            background: linear-gradient(90deg, #007bff, #ff7a00);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 1000;
+        }
+
+        .top-bar img { height: 40px; cursor: pointer; }
+        .top-bar img#loginIcon { width: 36px; height: 36px; }
+
+        .center {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .center h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #007bff, #ff7a00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .center p { font-size: 1rem; color: #b3b3b3; }
+
+        .visualizer-container {
+            width: 100%;
+            max-width: 1100px;
+            height: 280px;
+            margin: 30px auto;
+            background: rgba(0,0,0,0.4);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #visualizer { width: 100%; height: 100%; display: block; }
+
+        .visualizer-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background: linear-gradient(to top, #121212, transparent);
+            pointer-events: none;
+        }
+
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #181818;
+            border-top: 1px solid #282828;
+            padding: 12px 16px;
+            z-index: 1000;
+        }
+
+        .player-wrapper {
+            width: 100%;
+            max-width: 1800px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .controls-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .controls img {
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            opacity: 0.85;
+            transition: all 0.2s ease;
+        }
+
+        .controls img:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .controls img.main-btn {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #007bff, #ff7a00);
+            border-radius: 50%;
+            padding: 10px;
+            opacity: 1;
+        }
+
+        .volume-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .volume-controls img {
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            opacity: 0.85;
+        }
+
+        .track-section { min-width: 0; }
+
+        .now-playing {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .track-art {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #007bff, #ff7a00);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .track-art span { font-size: 24px; }
+
+        .track-details { flex: 1; min-width: 0; }
+
+        .track-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 2px;
+        }
+
+        .track-genre { font-size: 12px; color: #b3b3b3; }
+
+        .progress-section { width: 100%; }
+
+        .progress-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .time-label {
+            font-size: 11px;
+            color: #a7a7a7;
+            min-width: 40px;
+        }
+
+        .time-label.right { text-align: right; }
+
+        .progress-container {
+            flex: 1;
+            position: relative;
+            height: 4px;
+            background: #404040;
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        .progress {
+            height: 100%;
+            width: 0%;
+            background: #fff;
+            border-radius: 2px;
+        }
+
+        .dot {
+            position: absolute;
+            top: 50%;
+            left: 0%;
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+        }
+
+        .progress-container:hover .dot { opacity: 1; }
+        .progress-container:hover .progress { background: linear-gradient(90deg, #007bff, #ff7a00); }
+
+        .extra-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .info-bar {
+            background: #282828;
+            border-radius: 8px;
+            padding: 8px 12px;
+            width: 100%;
+            max-width: 280px;
+        }
+
+        .info-bar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .info-bar-title {
+            font-size: 11px;
+            color: #b3b3b3;
+            text-transform: uppercase;
+        }
+
+        .info-bar-time { font-size: 11px; color: #a7a7a7; }
+        .info-bar .progress-container { height: 3px; }
+
+        #loginBox {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #282828;
+            padding: 32px;
+            border-radius: 8px;
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            z-index: 2000;
+            width: 90%;
+            max-width: 320px;
+        }
+
+        #loginBox h3 {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        #loginBox input {
+            padding: 14px 16px;
+            border: none;
+            border-radius: 4px;
+            background: #3e3e3e;
+            color: #fff;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        #loginBox button {
+            padding: 14px;
+            background: linear-gradient(90deg, #007bff, #ff7a00);
+            border: none;
+            color: #fff;
+            border-radius: 500px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        #genrePanel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+
+        .genre-box {
+            background: #282828;
+            padding: 24px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .genre-box h3 {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        #genreList {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            max-height: 250px;
+            overflow-y: auto;
+            margin-bottom: 16px;
+        }
+
+        #genreList button {
+            background: #3e3e3e;
+            color: #fff;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        #genreList button:hover { background: linear-gradient(90deg, #007bff, #ff7a00); }
+
+        .genre-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .genre-actions button {
+            padding: 14px;
+            background: #3e3e3e;
+            border: none;
+            color: #fff;
+            border-radius: 500px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .genre-actions button:first-child { background: linear-gradient(90deg, #007bff, #ff7a00); }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1999;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            body { padding-bottom: 280px; }
+            .player-wrapper { grid-template-columns: 1fr; gap: 12px; }
+            .controls-section { order: 1; }
+            .track-section { order: 0; }
+            .extra-section { order: 2; align-items: stretch; }
+            .info-bar { max-width: none; }
+            .now-playing { justify-content: center; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding-bottom: 300px; }
+            .center h1 { font-size: 1.8rem; }
+            .visualizer-container { height: 180px; }
+            .now-playing { flex-direction: column; text-align: center; }
+            .track-details { text-align: center; }
+            .controls img { width: 32px; height: 32px; }
+            .controls img.main-btn { width: 44px; height: 44px; }
+            #genreList { grid-template-columns: 1fr; }
+        }
+
+        .loading { animation: pulse 1.5s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+    </style>
 </head>
-
 <body>
 
-<!-- PAINEL DE GÊNEROS -->
-<div id="genrePanel" style="display:none">
+<!-- PAINEL DE GENEROS -->
+<div id="genrePanel">
     <div class="genre-box">
-        <h3>Selecionar Gênero</h3>
+        <h3>Selecionar Genero</h3>
         <div id="genreList"></div>
         <div class="genre-actions">
-            <button onclick="autoGenre()">🔀 Seleção Automática</button>
-            <button onclick="closeGenrePanel()">✕ Fechar</button>
+            <button onclick="autoGenre()">Selecao Automatica</button>
+            <button onclick="closeGenrePanel()">Fechar</button>
         </div>
     </div>
 </div>
@@ -687,9 +427,9 @@ body {
     <img id="loginIcon" src="icon/login.png" onclick="toggleLogin()" title="Login Admin">
 </div>
 
-<!-- ÁREA CENTRAL -->
+<!-- AREA CENTRAL -->
 <div class="center">
-    <h1>Rádio Online</h1>
+    <h1>Radio Online</h1>
     <p>Pinheirinho Celulares</p>
     
     <!-- VISUALIZADOR DE BATIDAS -->
@@ -707,11 +447,11 @@ body {
         <div class="track-section">
             <div class="now-playing">
                 <div class="track-art">
-                    <span>🎵</span>
+                    <span>&#127925;</span>
                 </div>
                 <div class="track-details">
-                    <div class="track-name" id="trackName">Nenhuma música</div>
-                    <div class="track-genre">Gênero: <span id="genreName">---</span></div>
+                    <div class="track-name" id="trackName">Nenhuma musica</div>
+                    <div class="track-genre">Genero: <span id="genreName">---</span></div>
                 </div>
             </div>
         </div>
@@ -719,12 +459,12 @@ body {
         <!-- CONTROLES CENTRAIS -->
         <div class="controls-section">
             <div class="controls">
-                <img id="genreBtn" src="icon/genero.png" onclick="openGenres()" style="display:none;" title="Gêneros">
-                <img id="nextBtn" src="icon/proximo.png" onclick="nextMusic()" style="display:none;" title="Próxima">
+                <img id="genreBtn" src="icon/genero.png" onclick="openGenres()" style="display:none;" title="Generos">
+                <img id="nextBtn" src="icon/proximo.png" onclick="nextMusic()" style="display:none;" title="Proxima">
                 <img id="playBtn" src="icon/play.png" onclick="togglePlay()" class="main-btn" title="Play/Pause">
             </div>
             
-            <!-- BARRA DE PROGRESSO DA MÚSICA -->
+            <!-- BARRA DE PROGRESSO DA MUSICA -->
             <div class="progress-section">
                 <div class="progress-row">
                     <span class="time-label" id="currentTime">0:00</span>
@@ -746,10 +486,9 @@ body {
 
         <!-- BARRAS DE INFO -->
         <div class="extra-section">
-            <!-- BARRA DO GÊNERO -->
             <div class="info-bar">
                 <div class="info-bar-header">
-                    <span class="info-bar-title">Gênero</span>
+                    <span class="info-bar-title">Genero</span>
                     <span class="info-bar-time" id="genreInfo">00:00:00 / 00:00:00</span>
                 </div>
                 <div class="progress-container">
@@ -758,7 +497,6 @@ body {
                 </div>
             </div>
 
-            <!-- BARRA TOTAL GERAL -->
             <div class="info-bar">
                 <div class="info-bar-header">
                     <span class="info-bar-title">Total Geral</span>
@@ -777,7 +515,7 @@ body {
 <!-- LOGIN BOX -->
 <div id="loginBox">
     <h3>Login Admin</h3>
-    <input id="user" placeholder="Usuário" autocomplete="username">
+    <input id="user" placeholder="Usuario" autocomplete="username">
     <input id="pass" type="password" placeholder="Senha" autocomplete="current-password">
     <button onclick="login()">Entrar</button>
 </div>
@@ -786,77 +524,71 @@ body {
 <audio id="player" crossorigin="anonymous"></audio>
 
 <script>
-/* ===============================
-   VARIÁVEIS GLOBAIS
-================================ */
-const player = document.getElementById("player");
-const loginBox = document.getElementById("loginBox");
-const loginIcon = document.getElementById("loginIcon");
-const overlay = document.getElementById("overlay");
-const nextBtn = document.getElementById("nextBtn");
-const genreBtn = document.getElementById("genreBtn");
-const playBtn = document.getElementById("playBtn");
-const muteBtnEl = document.getElementById("muteBtn");
-const user = document.getElementById("user");
-const pass = document.getElementById("pass");
+var player = document.getElementById("player");
+var loginBox = document.getElementById("loginBox");
+var loginIcon = document.getElementById("loginIcon");
+var overlay = document.getElementById("overlay");
+var nextBtn = document.getElementById("nextBtn");
+var genreBtn = document.getElementById("genreBtn");
+var playBtn = document.getElementById("playBtn");
+var muteBtnEl = document.getElementById("muteBtn");
+var userInput = document.getElementById("user");
+var passInput = document.getElementById("pass");
+var genrePanel = document.getElementById("genrePanel");
+var genreList = document.getElementById("genreList");
 
-let isAdmin = false;
-let tempoTotalGenero = 0;
-let tempoGeneroTocado = 0;
-let tempoTotalGeral = 0;
-let tempoGeralTocado = 0;
-let generoAtual = "";
-let musicasTocadas = [];
-let contadorMusicas = 0;
-let tocandoDivulgacao = false;
-let musicaAtualNome = "";
+var isAdmin = false;
+var tempoTotalGenero = 0;
+var tempoGeneroTocado = 0;
+var tempoTotalGeral = 0;
+var tempoGeralTocado = 0;
+var generoAtual = "";
+var musicasTocadas = [];
+var contadorMusicas = 0;
+var tocandoDivulgacao = false;
+var musicaAtualNome = "";
 
-// Audio Visualizer
-let audioContext = null;
-let analyser = null;
-let dataArray = null;
-let animationId = null;
-let isVisualizerInitialized = false;
+var audioContext = null;
+var analyser = null;
+var dataArray = null;
+var isVisualizerInitialized = false;
 
-/* ===============================
-   BANCO DE MÚSICAS
-================================ */
-const musicas = {
+var musicas = {
     "Eletronica": [
         "Amine_Edge_DANCE_Lost.mp3",
         "Azari_III_Hungry_for_the_power.mp3",
         "Maverick_Sabre_Slow_Down_Ft_Jorja_Smith_Vintage_Culture.mp3",
-        "Tiesto_The_Business.mp3",
+        "Tiesto_The_Business.mp3"
     ],
     "Sertanejo": [
         "Felipe_Rodrigo_Gosta_de_Rua.mp3",
         "Gusttavo_Lima_Bloqueado.mp3",
-        "Henrique_e_Juliano_Flor_E_O_Beija_Flor_part_Marília_Mendonça.mp3",
+        "Henrique_e_Juliano_Flor_E_O_Beija_Flor_part_Marilia_Mendonca.mp3",
         "Henrique_e_Juliano_VIDINHA_DE_BALADA.mp3",
         "Henrique_e_Juliano_VOLTA_POR_BAIXO.mp3",
-        "Hugo_e_Guilherme_Marília_Mendonça_Mal_Feito.mp3",
+        "Hugo_e_Guilherme_Marilia_Mendonca_Mal_Feito.mp3",
         "Jorge_Mateus_CHEIROSA.mp3",
         "Lauana_Prado_Saudade_Burra_feat_Simone_Mendes.mp3",
-        "Lençol_Dobrado_João_Gustavo_e_Murilo.mp3",
-        "Luiza_e_Maurílio_S_de_Saudade_part_Zé_Neto_e_Cristiano.mp3",
+        "Lencol_Dobrado_Joao_Gustavo_e_Murilo.mp3",
+        "Luiza_e_Maurilio_S_de_Saudade_part_Ze_Neto_e_Cristiano.mp3",
         "Maiara__Maraisa_Medo_Bobo.mp3",
-        "Marília_Mendonça_BEBI_LIGUEI.mp3",
-        "Marília_Mendonça_CIUMEIRA.mp3",
-        "Marília_Mendonça_Eu_Sei_De_Cor.mp3",
-        "Marília_Mendonça_INTENÇÃO_feat_Gaab.mp3",
-        "Marília_Mendonça_Leão.mp3",
-        "Marília_Mendonça_TODO_MUNDO_VAI_SOFRER.mp3",
-        "Matheus_Kauan_Decide_Aí.mp3",
+        "Marilia_Mendonca_BEBI_LIGUEI.mp3",
+        "Marilia_Mendonca_CIUMEIRA.mp3",
+        "Marilia_Mendonca_Eu_Sei_De_Cor.mp3",
+        "Marilia_Mendonca_INTENCAO_feat_Gaab.mp3",
+        "Marilia_Mendonca_Leao.mp3",
+        "Marilia_Mendonca_TODO_MUNDO_VAI_SOFRER.mp3",
+        "Matheus_Kauan_Decide_Ai.mp3",
         "Matheus_Kauan_O_Nosso_Santo_Bateu.mp3",
-        "Os_Barões_da_Pisadinha_Esquema_Preferido.mp3",
+        "Os_Baroes_da_Pisadinha_Esquema_Preferido.mp3",
         "Simone_Mendes_DOIS_TRISTES.mp3",
         "Simone_Mendes_Daqui_Pra_Sempre.mp3",
         "Simone_Mendes_Saudade_Proibida.mp3",
-        "Tayrone_Cê_Tá_Preparada_ft_Marília_Mendonça.mp3",
-        "Tudo_Que_Você_Quiser_Luan_Santana.mp3",
-        "Zé_Neto_Cristiano_Barulho_do_Foguete.mp3",
-        "Zé_Neto_Cristiano_LARGADO_ÀS_TRAÇAS.mp3",
-        "Zé_Neto_Cristiano_STATUS_QUE_EU_NÃO_QUERIA.mp3",
+        "Tayrone_Ce_Ta_Preparada_ft_Marilia_Mendonca.mp3",
+        "Tudo_Que_Voce_Quiser_Luan_Santana.mp3",
+        "Ze_Neto_Cristiano_Barulho_do_Foguete.mp3",
+        "Ze_Neto_Cristiano_LARGADO_AS_TRACAS.mp3",
+        "Ze_Neto_Cristiano_STATUS_QUE_EU_NAO_QUERIA.mp3"
     ],
     "Pop": [
         "Artemas_I_like_the_way_you_kiss_me.mp3",
@@ -878,7 +610,7 @@ const musicas = {
         "Sam_Smith_Unholy_ft_Kim_Petras.mp3",
         "Tame_Impala_The_Less_I_Know_The_Better.mp3",
         "The_Black_Eyed_Peas_Meet_Me_Halfway.mp3",
-        "Zerb_The_Chainsmokers_Addicted_ft_Ink.mp3",
+        "Zerb_The_Chainsmokers_Addicted_ft_Ink.mp3"
     ],
     "Pagode": [
         "Bebe_Vem_Me_Procura_Quem_Ama_Sente_Saudade.mp3",
@@ -891,7 +623,7 @@ const musicas = {
         "Melhor_eu_ir_Ligando_os_Fatos.mp3",
         "Pixote_Inseguranca.mp3",
         "Turma_do_Pagode_A_Gente_Tem_Tudo_Ver.mp3",
-        "Turma_do_Pagode_Deixa_em_Off.mp3",
+        "Turma_do_Pagode_Deixa_em_Off.mp3"
     ],
     "Anos80": [
         "ABBA_Dancing_Queen.mp3",
@@ -910,124 +642,88 @@ const musicas = {
         "Modern_Talking_Cheri_Cheri_Lady.mp3",
         "Queen_I_Want_To_Break_Free.mp3",
         "Sweet_Dreams.mp3",
-        "The_Outfield_Your_Love.mp3",
+        "The_Outfield_Your_Love.mp3"
     ],
     "Divulgacao": [
         "promo1.mp3",
         "promo2.mp3",
         "promo3.mp3",
         "promo4.mp3",
-        "promo5.mp3",
+        "promo5.mp3"
     ]
 };
 
-/* ===============================
-   VISUALIZADOR DE ÁUDIO
-================================ */
 function initVisualizer() {
     if (isVisualizerInitialized) return;
-    
     try {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
         analyser = audioContext.createAnalyser();
         analyser.fftSize = 256;
-        
-        const source = audioContext.createMediaElementSource(player);
+        var source = audioContext.createMediaElementSource(player);
         source.connect(analyser);
         analyser.connect(audioContext.destination);
-        
-        const bufferLength = analyser.frequencyBinCount;
-        dataArray = new Uint8Array(bufferLength);
-        
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
         isVisualizerInitialized = true;
         drawVisualizer();
     } catch (e) {
-        console.warn("Visualizador não disponível:", e);
+        console.warn("Visualizador nao disponivel:", e);
     }
 }
 
 function drawVisualizer() {
-    const canvas = document.getElementById("visualizer");
-    const ctx = canvas.getContext("2d");
-    
-    // Set canvas size
+    var canvas = document.getElementById("visualizer");
+    var ctx = canvas.getContext("2d");
     canvas.width = canvas.offsetWidth * 2;
     canvas.height = canvas.offsetHeight * 2;
     ctx.scale(2, 2);
-    
-    const width = canvas.offsetWidth;
-    const height = canvas.offsetHeight;
-    
+    var width = canvas.offsetWidth;
+    var height = canvas.offsetHeight;
+
     function draw() {
-        animationId = requestAnimationFrame(draw);
-        
+        requestAnimationFrame(draw);
         if (!analyser || !dataArray) {
-            // Draw idle state
             ctx.fillStyle = "rgba(18, 18, 18, 0.3)";
             ctx.fillRect(0, 0, width, height);
-            
-            const barCount = 64;
-            const barWidth = width / barCount - 2;
-            
-            for (let i = 0; i < barCount; i++) {
-                const barHeight = 5 + Math.sin(Date.now() / 500 + i * 0.2) * 3;
-                const x = i * (barWidth + 2);
-                
-                const gradient = ctx.createLinearGradient(0, height - barHeight, 0, height);
+            var barCount = 64;
+            var barWidth = width / barCount - 2;
+            for (var i = 0; i < barCount; i++) {
+                var barHeight = 5 + Math.sin(Date.now() / 500 + i * 0.2) * 3;
+                var x = i * (barWidth + 2);
+                var gradient = ctx.createLinearGradient(0, height - barHeight, 0, height);
                 gradient.addColorStop(0, "#007bff");
                 gradient.addColorStop(1, "#ff7a00");
-                
                 ctx.fillStyle = gradient;
                 ctx.fillRect(x, height - barHeight, barWidth, barHeight);
             }
             return;
         }
-        
         analyser.getByteFrequencyData(dataArray);
-        
         ctx.fillStyle = "rgba(18, 18, 18, 0.3)";
         ctx.fillRect(0, 0, width, height);
-        
-        const barCount = dataArray.length;
-        const barWidth = width / barCount - 1;
-        
-        for (let i = 0; i < barCount; i++) {
-            const barHeight = (dataArray[i] / 255) * height * 0.9;
-            const x = i * (barWidth + 1);
-            
-            const gradient = ctx.createLinearGradient(0, height - barHeight, 0, height);
+        var barCount = dataArray.length;
+        var barWidth = width / barCount - 1;
+        for (var i = 0; i < barCount; i++) {
+            var barHeight = (dataArray[i] / 255) * height * 0.9;
+            var x = i * (barWidth + 1);
+            var gradient = ctx.createLinearGradient(0, height - barHeight, 0, height);
             gradient.addColorStop(0, "#007bff");
             gradient.addColorStop(0.5, "#00c3ff");
             gradient.addColorStop(1, "#ff7a00");
-            
             ctx.fillStyle = gradient;
-            
-            // Rounded bars
-            const radius = barWidth / 2;
-            ctx.beginPath();
-            ctx.moveTo(x + radius, height);
-            ctx.lineTo(x + radius, height - barHeight + radius);
-            ctx.arc(x + radius, height - barHeight + radius, radius, Math.PI, 0, false);
-            ctx.lineTo(x + barWidth - radius, height);
-            ctx.fill();
+            ctx.fillRect(x, height - barHeight, barWidth, barHeight);
         }
     }
-    
     draw();
 }
 
-// Resize handler for canvas
-window.addEventListener("resize", () => {
-    const canvas = document.getElementById("visualizer");
+window.addEventListener("resize", function() {
+    var canvas = document.getElementById("visualizer");
     if (canvas) {
         canvas.width = canvas.offsetWidth * 2;
         canvas.height = canvas.offsetHeight * 2;
     }
 });
 
-/* ===============================
-   LOGIN / LOGOUT
-================================ */
 function toggleLogin() {
     if (isAdmin) {
         logout();
@@ -1037,27 +733,27 @@ function toggleLogin() {
 }
 
 function openLogin() {
-    user.value = "";
-    pass.value = "";
+    userInput.value = "";
+    passInput.value = "";
     loginBox.style.display = "flex";
     overlay.style.display = "block";
-    user.focus();
+    userInput.focus();
 }
 
 function login() {
-    if (user.value === "admin" && pass.value === "1234") {
+    if (userInput.value === "admin" && passInput.value === "1234") {
         isAdmin = true;
         nextBtn.style.display = "block";
         genreBtn.style.display = "block";
         loginIcon.src = "icon/sair.png";
         loginBox.style.display = "none";
         overlay.style.display = "none";
-        user.value = "";
-        pass.value = "";
+        userInput.value = "";
+        passInput.value = "";
     } else {
-        alert("Usuário ou senha inválidos");
-        pass.value = "";
-        pass.focus();
+        alert("Usuario ou senha invalidos");
+        passInput.value = "";
+        passInput.focus();
     }
 }
 
@@ -1068,116 +764,87 @@ function logout() {
     loginIcon.src = "icon/login.png";
     loginBox.style.display = "none";
     overlay.style.display = "none";
-    user.value = "";
-    pass.value = "";
 }
 
-// Enter key login
-document.getElementById("pass").addEventListener("keypress", (e) => {
+passInput.addEventListener("keypress", function(e) {
     if (e.key === "Enter") login();
 });
 
-// Click overlay to close
-overlay.addEventListener("click", () => {
+overlay.addEventListener("click", function() {
     loginBox.style.display = "none";
     overlay.style.display = "none";
 });
 
-/* ===============================
-   PLAYER CONTROLS
-================================ */
 function togglePlay() {
     if (!player.src) {
         iniciarRadio();
         return;
     }
-
     if (player.paused) {
         player.play();
         if (audioContext && audioContext.state === "suspended") {
             audioContext.resume();
         }
         playBtn.src = "icon/pause.png";
-        playBtn.classList.add("active");
     } else {
         player.pause();
         playBtn.src = "icon/play.png";
-        playBtn.classList.remove("active");
     }
 }
 
 function toggleMute() {
     player.muted = !player.muted;
     if (player.muted) {
-        muteBtnEl.classList.add("active");
         muteBtnEl.src = "icon/volume.png";
     } else {
-        muteBtnEl.classList.remove("active");
         muteBtnEl.src = "icon/mute.png";
     }
 }
 
-function volumeUp() { 
-    player.volume = Math.min(1, player.volume + 0.1); 
-}
+function volumeUp() { player.volume = Math.min(1, player.volume + 0.1); }
+function volumeDown() { player.volume = Math.max(0, player.volume - 0.1); }
+function nextMusic() { player.dispatchEvent(new Event("ended")); }
 
-function volumeDown() { 
-    player.volume = Math.max(0, player.volume - 0.1); 
-}
-
-function nextMusic() {
-    player.dispatchEvent(new Event("ended"));
-}
-
-/* ===============================
-   LÓGICA DA RÁDIO
-================================ */
 function iniciarRadio() {
-    // Initialize visualizer on first play (requires user interaction)
     initVisualizer();
-    
-    // Calculate total time for all genres first
     calcularTempoGeral();
-    
-    // Choose genre and start playing
     escolherGeneroAutomatico();
-    tocarProxima();
 }
 
 function escolherGeneroAutomatico() {
-    const generos = Object.keys(musicas).filter(g => g !== "Divulgacao");
-    generoAtual = generos[Math.floor(Math.random() * generos.length)];
+    var generos = Object.keys(musicas).filter(function(g) { return g !== "Divulgacao"; });
+    var novoGenero;
+    if (generos.length > 1) {
+        do {
+            novoGenero = generos[Math.floor(Math.random() * generos.length)];
+        } while (novoGenero === generoAtual);
+    } else {
+        novoGenero = generos[0];
+    }
+    generoAtual = novoGenero;
     musicasTocadas = [];
     contadorMusicas = 0;
     tempoGeneroTocado = 0;
-    
     resetarBarraGenero();
     document.getElementById("genreName").innerText = generoAtual;
-    
-    // CORREÇÃO: Calcular tempo do gênero ANTES de tocar
-    calcularTempoGenero(generoAtual);
+    calcularTempoGenero(generoAtual, function() {
+        tocarProxima();
+    });
 }
 
 function escolherGeneroManual(genero) {
     closeGenrePanel();
-    
     generoAtual = genero;
     musicasTocadas = [];
     contadorMusicas = 0;
     tempoGeneroTocado = 0;
     tempoGeralTocado = 0;
     tocandoDivulgacao = false;
-    
     resetarBarraGenero();
     resetarBarraGeral();
-    
     document.getElementById("genreName").innerText = generoAtual;
-    
-    // CORREÇÃO PRINCIPAL: Calcular tempo do gênero ANTES de tocar a música
-    // e aguardar o cálculo completar antes de tocar
-    calcularTempoGenero(generoAtual, () => {
-        // Recalcular tempo geral quando muda de gênero
-        calcularTempoGeral(() => {
+    calcularTempoGenero(generoAtual, function() {
+        calcularTempoGeral(function() {
             tocarProxima();
         });
     });
@@ -1196,186 +863,148 @@ function resetarBarraGeral() {
 }
 
 function tocarProxima() {
-    if (musicasTocadas.length === musicas[generoAtual].length) {
+    if (musicasTocadas.length >= musicas[generoAtual].length) {
+        console.log("Genero " + generoAtual + " finalizado. Mudando...");
         escolherGeneroAutomatico();
+        return;
     }
-
-    let musica;
+    var musica;
+    var listaGenero = musicas[generoAtual];
     do {
-        musica = musicas[generoAtual][Math.floor(Math.random() * musicas[generoAtual].length)];
-    } while (musicasTocadas.includes(musica));
-
+        musica = listaGenero[Math.floor(Math.random() * listaGenero.length)];
+    } while (musicasTocadas.indexOf(musica) !== -1 && musicasTocadas.length < listaGenero.length);
     musicasTocadas.push(musica);
     tocarMusica(generoAtual, musica);
 }
 
 function tocarMusica(genero, arquivo) {
-    musicaAtualNome = arquivo
-        .replace(/_/g, " ")
-        .replace(".mp3", "");
-
+    musicaAtualNome = arquivo.replace(/_/g, " ").replace(".mp3", "");
     document.getElementById("trackName").innerText = "Carregando...";
     document.getElementById("trackName").classList.add("loading");
-
-    player.src = `musicas/${genero}/${arquivo}`;
+    var caminho = "musicas/" + genero + "/" + arquivo;
+    console.log("Tocando:", caminho);
+    player.src = caminho;
     player.load();
-    player.play();
-
+    player.play().catch(function(e) {
+        console.error("Erro ao tocar:", e);
+        setTimeout(function() { tocarProxima(); }, 1000);
+    });
     playBtn.src = "icon/pause.png";
-    playBtn.classList.add("active");
 }
 
 function tocarDivulgacao() {
-    const lista = musicas["Divulgacao"];
+    var lista = musicas["Divulgacao"];
     if (!lista || lista.length === 0) {
         tocarProxima();
         return;
     }
-
     tocandoDivulgacao = true;
-    const promo = lista[Math.floor(Math.random() * lista.length)];
+    var promo = lista[Math.floor(Math.random() * lista.length)];
     tocarMusica("Divulgacao", promo);
 }
 
-/* ===============================
-   FORMATAÇÃO DE TEMPO
-================================ */
 function formatar(t) {
     if (isNaN(t) || !isFinite(t)) return "0:00";
-    const m = Math.floor(t / 60);
-    const s = Math.floor(t % 60).toString().padStart(2, "0");
-    return `${m}:${s}`;
+    var m = Math.floor(t / 60);
+    var s = Math.floor(t % 60).toString();
+    if (s.length < 2) s = "0" + s;
+    return m + ":" + s;
 }
 
 function formatarHMS(t) {
     if (isNaN(t) || !isFinite(t)) return "00:00:00";
-    const h = Math.floor(t / 3600).toString().padStart(2, "0");
-    const m = Math.floor((t % 3600) / 60).toString().padStart(2, "0");
-    const s = Math.floor(t % 60).toString().padStart(2, "0");
-    return `${h}:${m}:${s}`;
+    var h = Math.floor(t / 3600).toString();
+    var m = Math.floor((t % 3600) / 60).toString();
+    var s = Math.floor(t % 60).toString();
+    if (h.length < 2) h = "0" + h;
+    if (m.length < 2) m = "0" + m;
+    if (s.length < 2) s = "0" + s;
+    return h + ":" + m + ":" + s;
 }
 
-/* ===============================
-   CÁLCULO DE TEMPO - CORRIGIDO
-================================ */
 function calcularTempoGenero(genero, callback) {
     tempoTotalGenero = 0;
-    const lista = musicas[genero];
-    
+    var lista = musicas[genero];
     if (!lista || lista.length === 0) {
         document.getElementById("genreInfo").innerText = "00:00:00 / 00:00:00";
         if (callback) callback();
         return;
     }
-
-    let processadas = 0;
-    const total = lista.length;
-
-    lista.forEach(musica => {
-        const audioTemp = new Audio(`musicas/${genero}/${musica}`);
-
-        const finalizar = () => {
+    var processadas = 0;
+    var total = lista.length;
+    lista.forEach(function(musica) {
+        var caminho = "musicas/" + genero + "/" + musica;
+        var audioTemp = new Audio(caminho);
+        var finalizar = function() {
             processadas++;
             if (processadas === total) {
-                // Atualiza a UI com o tempo total calculado
-                document.getElementById("genreInfo").innerText = 
-                    "00:00:00 / " + formatarHMS(tempoTotalGenero);
-                
-                // Chama callback quando terminar
+                document.getElementById("genreInfo").innerText = "00:00:00 / " + formatarHMS(tempoTotalGenero);
                 if (callback) callback();
             }
         };
-
-        audioTemp.addEventListener("loadedmetadata", () => {
+        audioTemp.addEventListener("loadedmetadata", function() {
             if (!isNaN(audioTemp.duration) && isFinite(audioTemp.duration)) {
                 tempoTotalGenero += audioTemp.duration;
             }
             finalizar();
         });
-
-        audioTemp.addEventListener("error", () => {
-            console.warn("Erro ao carregar:", musica);
+        audioTemp.addEventListener("error", function() {
+            console.warn("Erro ao carregar:", caminho);
             finalizar();
         });
-        
-        // Timeout para evitar travamento
-        setTimeout(() => {
-            if (processadas < total) {
-                finalizar();
-            }
+        setTimeout(function() {
+            if (processadas < total) finalizar();
         }, 5000);
     });
 }
 
 function calcularTempoGeral(callback) {
     tempoTotalGeral = 0;
-    const generos = Object.keys(musicas).filter(g => g !== "Divulgacao");
-    let processadas = 0;
-    let totalMusicas = 0;
-
-    // Contar total de músicas
-    generos.forEach(genero => {
+    var generos = Object.keys(musicas).filter(function(g) { return g !== "Divulgacao"; });
+    var processadas = 0;
+    var totalMusicas = 0;
+    generos.forEach(function(genero) {
         totalMusicas += musicas[genero].length;
     });
-
     if (totalMusicas === 0) {
         if (callback) callback();
         return;
     }
-
-    generos.forEach(genero => {
-        musicas[genero].forEach(musica => {
-            const audioTemp = new Audio(`musicas/${genero}/${musica}`);
-
-            const finalizar = () => {
+    generos.forEach(function(genero) {
+        musicas[genero].forEach(function(musica) {
+            var caminho = "musicas/" + genero + "/" + musica;
+            var audioTemp = new Audio(caminho);
+            var finalizar = function() {
                 processadas++;
                 if (processadas === totalMusicas) {
-                    document.getElementById("globalInfo").innerText = 
-                        "00:00:00 / " + formatarHMS(tempoTotalGeral);
-                    
+                    document.getElementById("globalInfo").innerText = "00:00:00 / " + formatarHMS(tempoTotalGeral);
                     if (callback) callback();
                 }
             };
-
-            audioTemp.addEventListener("loadedmetadata", () => {
+            audioTemp.addEventListener("loadedmetadata", function() {
                 if (!isNaN(audioTemp.duration) && isFinite(audioTemp.duration)) {
                     tempoTotalGeral += audioTemp.duration;
                 }
                 finalizar();
             });
-
             audioTemp.addEventListener("error", finalizar);
-            
-            // Timeout
-            setTimeout(() => {
-                if (processadas < totalMusicas) {
-                    finalizar();
-                }
+            setTimeout(function() {
+                if (processadas < totalMusicas) finalizar();
             }, 10000);
         });
     });
 }
 
-/* ===============================
-   PAINEL DE GÊNEROS
-================================ */
-const genrePanel = document.getElementById("genrePanel");
-const genreList = document.getElementById("genreList");
-
 function openGenres() {
     if (!isAdmin) return;
-
     genreList.innerHTML = "";
-
-    Object.keys(musicas).forEach(genero => {
+    Object.keys(musicas).forEach(function(genero) {
         if (genero === "Divulgacao") return;
-
-        const btn = document.createElement("button");
+        var btn = document.createElement("button");
         btn.innerText = genero;
-        btn.onclick = () => escolherGeneroManual(genero);
+        btn.onclick = function() { escolherGeneroManual(genero); };
         genreList.appendChild(btn);
     });
-
     genrePanel.style.display = "flex";
 }
 
@@ -1388,116 +1017,85 @@ function autoGenre() {
     tempoGeralTocado = 0;
     resetarBarraGeral();
     escolherGeneroAutomatico();
-    
-    // Recalcular tempo geral
-    calcularTempoGeral(() => {
-        tocarProxima();
-    });
 }
 
-/* ===============================
-   EVENT LISTENERS
-================================ */
-
-// Atualização da barra de progresso
-player.addEventListener("timeupdate", () => {
+player.addEventListener("timeupdate", function() {
     if (!player.duration || isNaN(player.duration)) return;
-    
-    const pct = (player.currentTime / player.duration) * 100;
-    
-    // Barra da música
+    var pct = (player.currentTime / player.duration) * 100;
     document.getElementById("musicProgress").style.width = pct + "%";
     document.getElementById("musicDot").style.left = pct + "%";
     document.getElementById("currentTime").innerText = formatar(player.currentTime);
     document.getElementById("totalTime").innerText = formatar(player.duration);
-
-    // Barra do gênero
     if (tempoTotalGenero > 0) {
-        const totalTocado = tempoGeneroTocado + (player.currentTime || 0);
-        const pctGenero = Math.min((totalTocado / tempoTotalGenero) * 100, 100);
-
+        var totalTocado = tempoGeneroTocado + (player.currentTime || 0);
+        var pctGenero = Math.min((totalTocado / tempoTotalGenero) * 100, 100);
         document.getElementById("genreProgress").style.width = pctGenero + "%";
         document.getElementById("genreDot").style.left = pctGenero + "%";
-        document.getElementById("genreInfo").innerText = 
-            formatarHMS(totalTocado) + " / " + formatarHMS(tempoTotalGenero);
+        document.getElementById("genreInfo").innerText = formatarHMS(totalTocado) + " / " + formatarHMS(tempoTotalGenero);
     }
-
-    // Barra geral
     if (tempoTotalGeral > 0) {
-        const totalGeral = tempoGeralTocado + (player.currentTime || 0);
-        const pctGeral = Math.min((totalGeral / tempoTotalGeral) * 100, 100);
-
+        var totalGeral = tempoGeralTocado + (player.currentTime || 0);
+        var pctGeral = Math.min((totalGeral / tempoTotalGeral) * 100, 100);
         document.getElementById("globalProgress").style.width = pctGeral + "%";
         document.getElementById("globalDot").style.left = pctGeral + "%";
-        document.getElementById("globalInfo").innerText = 
-            formatarHMS(totalGeral) + " / " + formatarHMS(tempoTotalGeral);
+        document.getElementById("globalInfo").innerText = formatarHMS(totalGeral) + " / " + formatarHMS(tempoTotalGeral);
     }
 });
 
-// Quando música termina
-player.addEventListener("ended", () => {
+player.addEventListener("ended", function() {
     if (!tocandoDivulgacao) {
-        const dur = player.duration || 0;
+        var dur = player.duration || 0;
         if (!isNaN(dur) && isFinite(dur)) {
             tempoGeneroTocado += dur;
             tempoGeralTocado += dur;
         }
         contadorMusicas++;
     }
-
     if (tocandoDivulgacao) {
         tocandoDivulgacao = false;
         tocarProxima();
         return;
     }
-
-    // A cada 5 músicas, toca divulgação
     if (contadorMusicas > 0 && contadorMusicas % 5 === 0) {
         tocarDivulgacao();
         return;
     }
-
     tocarProxima();
 });
 
-// Loading states
-player.addEventListener("loadstart", () => {
+player.addEventListener("loadstart", function() {
     document.getElementById("trackName").innerText = "Carregando...";
     document.getElementById("trackName").classList.add("loading");
     document.getElementById("musicProgress").style.width = "0%";
     document.getElementById("musicDot").style.left = "0%";
 });
 
-player.addEventListener("canplay", () => {
+player.addEventListener("canplay", function() {
     playBtn.src = "icon/pause.png";
 });
 
-player.addEventListener("playing", () => {
+player.addEventListener("playing", function() {
     document.getElementById("trackName").classList.remove("loading");
     if (musicaAtualNome) {
         document.getElementById("trackName").innerText = musicaAtualNome;
     }
 });
 
-player.addEventListener("error", (e) => {
+player.addEventListener("error", function(e) {
     console.error("Erro no player:", e);
     document.getElementById("trackName").innerText = "Erro ao carregar";
     document.getElementById("trackName").classList.remove("loading");
-    // Tenta próxima música após erro
-    setTimeout(() => tocarProxima(), 2000);
+    setTimeout(function() { tocarProxima(); }, 2000);
 });
 
-// Click na barra de progresso para seek
-document.getElementById("musicProgressContainer").addEventListener("click", (e) => {
+document.getElementById("musicProgressContainer").addEventListener("click", function(e) {
     if (!player.duration) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const pct = (e.clientX - rect.left) / rect.width;
+    var rect = e.currentTarget.getBoundingClientRect();
+    var pct = (e.clientX - rect.left) / rect.width;
     player.currentTime = pct * player.duration;
 });
 
-// Inicializar visualizador com estado idle
 drawVisualizer();
-
 </script>
 </body>
 </html>
