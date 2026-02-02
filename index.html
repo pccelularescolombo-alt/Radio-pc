@@ -46,11 +46,17 @@ body {
 .top-bar img {
     height: 40px;
     cursor: pointer;
-    transition: transform 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 .top-bar img:hover {
     transform: scale(1.05);
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+}
+
+.top-bar img#loginIcon {
+    width: 36px;
+    height: 36px;
 }
 
 /* ===============================
@@ -85,13 +91,14 @@ body {
 ================================ */
 .visualizer-container {
     width: 100%;
-    max-width: 800px;
-    height: 200px;
-    margin: 30px auto;
-    background: rgba(0,0,0,0.3);
-    border-radius: 12px;
+    max-width: 1100px;
+    height: 300px;
+    margin: 40px auto;
+    background: rgba(0,0,0,0.4);
+    border-radius: 16px;
     overflow: hidden;
     position: relative;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
 }
 
 #visualizer {
@@ -154,25 +161,25 @@ body {
 }
 
 .controls img {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     cursor: pointer;
-    opacity: 0.7;
+    opacity: 0.85;
     transition: all 0.2s ease;
-    filter: brightness(0) invert(1);
 }
 
 .controls img:hover {
     opacity: 1;
     transform: scale(1.1);
+    filter: drop-shadow(0 0 8px rgba(255, 122, 0, 0.6));
 }
 
 .controls img.main-btn {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     background: linear-gradient(135deg, #007bff, #ff7a00);
     border-radius: 50%;
-    padding: 8px;
+    padding: 10px;
     opacity: 1;
 }
 
@@ -182,7 +189,7 @@ body {
 }
 
 .controls img.active {
-    filter: brightness(0) saturate(100%) invert(53%) sepia(98%) saturate(1000%) hue-rotate(360deg) brightness(103%) contrast(101%);
+    filter: drop-shadow(0 0 10px rgba(255, 122, 0, 0.8));
     opacity: 1;
 }
 
@@ -192,12 +199,21 @@ body {
 .volume-controls {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
 }
 
 .volume-controls img {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    opacity: 0.85;
+    transition: all 0.2s ease;
+}
+
+.volume-controls img:hover {
+    opacity: 1;
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 6px rgba(255, 122, 0, 0.5));
 }
 
 /* ===============================
@@ -591,11 +607,26 @@ body {
     }
 
     .visualizer-container {
-        height: 150px;
+        height: 180px;
     }
 
     body {
         padding-bottom: 320px;
+    }
+
+    .controls img {
+        width: 32px;
+        height: 32px;
+    }
+
+    .controls img.main-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .volume-controls img {
+        width: 26px;
+        height: 26px;
     }
 }
 
