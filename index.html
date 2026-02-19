@@ -484,27 +484,16 @@
             </div>
         </div>
 
-        <!-- BARRAS DE INFO -->
+        <!-- BARRA DE INFO DO GENERO (APENAS) -->
         <div class="extra-section">
             <div class="info-bar">
                 <div class="info-bar-header">
-                    <span class="info-bar-title">Genero</span>
+                    <span class="info-bar-title">Genero Atual</span>
                     <span class="info-bar-time" id="genreInfo">00:00:00 / 00:00:00</span>
                 </div>
                 <div class="progress-container">
                     <div class="progress" id="genreProgress"></div>
                     <div class="dot" id="genreDot"></div>
-                </div>
-            </div>
-
-            <div class="info-bar">
-                <div class="info-bar-header">
-                    <span class="info-bar-title">Total Geral</span>
-                    <span class="info-bar-time" id="globalInfo">00:00:00 / 00:00:00</span>
-                </div>
-                <div class="progress-container">
-                    <div class="progress" id="globalProgress"></div>
-                    <div class="dot" id="globalDot"></div>
                 </div>
             </div>
         </div>
@@ -540,15 +529,13 @@ var genreList = document.getElementById("genreList");
 var isAdmin = false;
 var tempoTotalGenero = 0;
 var tempoGeneroTocado = 0;
-var tempoTotalGeral = 0;
-var tempoGeralTocado = 0;
 var generoAtual = "";
 var musicasTocadas = [];
 var contadorMusicas = 0;
 var tocandoDivulgacao = false;
 var musicaAtualNome = "";
 
-// NOVAS VARIÁVEIS PARA CONTROLE DE GÊNEROS
+// VARIÁVEIS PARA CONTROLE DE GÊNEROS
 var generosTocados = [];  // Array para rastrear gêneros tocados no ciclo atual
 var ultimosDoisGeneros = [];  // Array para armazenar os últimos 2 gêneros
 
@@ -850,11 +837,11 @@ function nextMusic() { player.dispatchEvent(new Event("ended")); }
 
 function iniciarRadio() {
     initVisualizer();
-    calcularTempoGeral();
+    // REMOVIDO: calcularTempoGeral() - agora calcula apenas o tempo do gênero atual
     escolherGeneroAutomatico();
 }
 
-// FUNÇÃO ATUALIZADA PARA SELEÇÃO AUTOMÁTICA DE GÊNEROS
+// FUNÇÃO PARA SELEÇÃO AUTOMÁTICA DE GÊNEROS
 function escolherGeneroAutomatico() {
     var generos = Object.keys(musicas).filter(function(g) { return g !== "Divulgacao"; });
     
@@ -863,8 +850,7 @@ function escolherGeneroAutomatico() {
         console.log("Todos os generos foram tocados! Reiniciando ciclo...");
         // Zerar contadores e reiniciar
         generosTocados = [];
-        tempoGeralTocado = 0;
-        resetarBarraGeral();
+        // REMOVIDO: tempoGeralTocado = 0; e resetarBarraGeral();
     }
     
     // Filtrar gêneros disponíveis
@@ -924,7 +910,6 @@ function escolherGeneroManual(genero) {
     musicasTocadas = [];
     contadorMusicas = 0;
     tempoGeneroTocado = 0;
-    tempoGeralTocado = 0;
     tocandoDivulgacao = false;
     
     // Reiniciar controles de gêneros
@@ -932,12 +917,10 @@ function escolherGeneroManual(genero) {
     ultimosDoisGeneros = [genero];
     
     resetarBarraGenero();
-    resetarBarraGeral();
+    // REMOVIDO: tempoGeralTocado = 0; e resetarBarraGeral(); e calcularTempoGeral();
     document.getElementById("genreName").innerText = generoAtual;
     calcularTempoGenero(generoAtual, function() {
-        calcularTempoGeral(function() {
-            tocarProxima();
-        });
+        tocarProxima();
     });
 }
 
@@ -947,11 +930,7 @@ function resetarBarraGenero() {
     document.getElementById("genreInfo").innerText = "00:00:00 / 00:00:00";
 }
 
-function resetarBarraGeral() {
-    document.getElementById("globalProgress").style.width = "0%";
-    document.getElementById("globalDot").style.left = "0%";
-    document.getElementById("globalInfo").innerText = "00:00:00 / 00:00:00";
-}
+// REMOVIDO: função resetarBarraGeral() - não é mais necessária
 
 function tocarProxima() {
     if (musicasTocadas.length >= musicas[generoAtual].length) {
@@ -1049,42 +1028,7 @@ function calcularTempoGenero(genero, callback) {
     });
 }
 
-function calcularTempoGeral(callback) {
-    tempoTotalGeral = 0;
-    var generos = Object.keys(musicas).filter(function(g) { return g !== "Divulgacao"; });
-    var processadas = 0;
-    var totalMusicas = 0;
-    generos.forEach(function(genero) {
-        totalMusicas += musicas[genero].length;
-    });
-    if (totalMusicas === 0) {
-        if (callback) callback();
-        return;
-    }
-    generos.forEach(function(genero) {
-        musicas[genero].forEach(function(musica) {
-            var caminho = "musicas/" + genero + "/" + musica;
-            var audioTemp = new Audio(caminho);
-            var finalizar = function() {
-                processadas++;
-                if (processadas === totalMusicas) {
-                    document.getElementById("globalInfo").innerText = "00:00:00 / " + formatarHMS(tempoTotalGeral);
-                    if (callback) callback();
-                }
-            };
-            audioTemp.addEventListener("loadedmetadata", function() {
-                if (!isNaN(audioTemp.duration) && isFinite(audioTemp.duration)) {
-                    tempoTotalGeral += audioTemp.duration;
-                }
-                finalizar();
-            });
-            audioTemp.addEventListener("error", finalizar);
-            setTimeout(function() {
-                if (processadas < totalMusicas) finalizar();
-            }, 10000);
-        });
-    });
-}
+// REMOVIDO: função calcularTempoGeral() completa - não é mais necessária
 
 function openGenres() {
     if (!isAdmin) return;
@@ -1105,10 +1049,9 @@ function closeGenrePanel() {
 
 function autoGenre() {
     closeGenrePanel();
-    tempoGeralTocado = 0;
+    // REMOVIDO: tempoGeralTocado = 0; e resetarBarraGeral();
     generosTocados = [];
     ultimosDoisGeneros = [];
-    resetarBarraGeral();
     escolherGeneroAutomatico();
 }
 
@@ -1119,6 +1062,8 @@ player.addEventListener("timeupdate", function() {
     document.getElementById("musicDot").style.left = pct + "%";
     document.getElementById("currentTime").innerText = formatar(player.currentTime);
     document.getElementById("totalTime").innerText = formatar(player.duration);
+    
+    // Atualização da barra do gênero atual
     if (tempoTotalGenero > 0) {
         var totalTocado = tempoGeneroTocado + (player.currentTime || 0);
         var pctGenero = Math.min((totalTocado / tempoTotalGenero) * 100, 100);
@@ -1126,13 +1071,8 @@ player.addEventListener("timeupdate", function() {
         document.getElementById("genreDot").style.left = pctGenero + "%";
         document.getElementById("genreInfo").innerText = formatarHMS(totalTocado) + " / " + formatarHMS(tempoTotalGenero);
     }
-    if (tempoTotalGeral > 0) {
-        var totalGeral = tempoGeralTocado + (player.currentTime || 0);
-        var pctGeral = Math.min((totalGeral / tempoTotalGeral) * 100, 100);
-        document.getElementById("globalProgress").style.width = pctGeral + "%";
-        document.getElementById("globalDot").style.left = pctGeral + "%";
-        document.getElementById("globalInfo").innerText = formatarHMS(totalGeral) + " / " + formatarHMS(tempoTotalGeral);
-    }
+    
+    // REMOVIDO: toda a lógica de atualização da barra "Total Geral"
 });
 
 player.addEventListener("ended", function() {
@@ -1140,7 +1080,7 @@ player.addEventListener("ended", function() {
         var dur = player.duration || 0;
         if (!isNaN(dur) && isFinite(dur)) {
             tempoGeneroTocado += dur;
-            tempoGeralTocado += dur;
+            // REMOVIDO: tempoGeralTocado += dur;
         }
         contadorMusicas++;
     }
@@ -1180,17 +1120,6 @@ player.addEventListener("error", function(e) {
     document.getElementById("trackName").classList.remove("loading");
     setTimeout(function() { tocarProxima(); }, 2000);
 });
-
-// REMOVIDO: Event listener de click na barra de progresso
-// A interação com o mouse foi desabilitada conforme solicitado
-/*
-document.getElementById("musicProgressContainer").addEventListener("click", function(e) {
-    if (!player.duration) return;
-    var rect = e.currentTarget.getBoundingClientRect();
-    var pct = (e.clientX - rect.left) / rect.width;
-    player.currentTime = pct * player.duration;
-});
-*/
 
 drawVisualizer();
 </script>
